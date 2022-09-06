@@ -1,0 +1,13 @@
+.ant-card {
+    max-width: 5vw;
+    max-height: 13vh;
+    float: left;
+    text-align: center;
+
+}
+
+.ant-card.ant-card-bordered {
+    margin-top: 1vh;
+    margin-left: 1vw;
+}
+
