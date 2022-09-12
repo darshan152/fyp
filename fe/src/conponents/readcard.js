@@ -1,7 +1,8 @@
 import { Card, Modal, Upload, Button, message } from 'antd';
 import React, { useState } from 'react';
 import './components.css';
-import { parse } from 'papaparse';
+import axios from 'axios';
+
 
 function ReadCard(props) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,24 +39,16 @@ function ReadCard(props) {
           return;
         }
         const { result } = evt.target;
-        console.log(result)
-        console.log(filename)
-        const records = parse(result, {
-          'header': true,
-        });
-        console.log(records);
-        setCsvData(records);
-      };
+
+        axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, {data:result})
+        .then(res => {
+          console.log(res);
+          setCsvData(res.data.data);
+        })
+            //.then(data => this.setState({ postId: data.id }));
+        };
       reader.readAsBinaryString(file);
     };
-
-    const handleFetchData = () => { // access in API call
-      fetch(`${process.env.REACT_APP_BACKEND_URL}`)
-        //.then((res) => res.json())
-        .then((data) => console.log(data.text));
-    };
-
-    handleFetchData();
 
 
     return (
