@@ -7,7 +7,7 @@ function Ribbon(props) {
 
     return (
         <div>
-        <ReadCard></ReadCard>
+        <ReadCard handleFileUpload={props.handleFileUpload}></ReadCard>
         <Card>
             <p>Meow</p>
         </Card>

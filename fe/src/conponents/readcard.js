@@ -6,8 +6,8 @@ import axios from 'axios';
 
 function ReadCard(props) {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [csvData, setCsvData] = useState(undefined);
-    const [filename, setFilename] = useState("");
+    // const [csvData, setCsvData] = useState(undefined);
+    // const [filename, setFilename] = useState("");
 
     const showModal = () => {
       setIsModalOpen(true);
@@ -24,31 +24,31 @@ function ReadCard(props) {
       console.log('Modal Cancel')
     };
 
-    const handleFileUpload = (e) => {
-      if (!e.target.files) {
-        return;
-      }
-      const file = e.target.files[0];
-      const { name } = file;
-      console.log(name)
-      setFilename(name);
+    // const handleFileUpload = (e) => {
+    //   if (!e.target.files) {
+    //     return;
+    //   }
+    //   const file = e.target.files[0];
+    //   const { name } = file;
+    //   console.log(name)
+    //   setFilename(name);
   
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        if (!evt?.target?.result) {
-          return;
-        }
-        const { result } = evt.target;
+    //   const reader = new FileReader();
+    //   reader.onload = (evt) => {
+    //     if (!evt?.target?.result) {
+    //       return;
+    //     }
+    //     const { result } = evt.target;
 
-        axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, {data:result})
-        .then(res => {
-          console.log(res);
-          setCsvData(res.data.data);
-        })
-            //.then(data => this.setState({ postId: data.id }));
-        };
-      reader.readAsBinaryString(file);
-    };
+    //     axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, {data:result})
+    //     .then(res => {
+    //       console.log(res);
+    //       setCsvData(res.data.data);
+    //     })
+    //         //.then(data => this.setState({ postId: data.id }));
+    //     };
+    //   reader.readAsBinaryString(file);
+    // };
 
 
     return (
@@ -68,7 +68,7 @@ function ReadCard(props) {
             <Button>Click to Upload</Button>
           </Upload> */}
 
-          <input type="file" accept=".csv"  onChange={handleFileUpload} />
+          <input type="file" accept=".csv"  onChange={props.handleFileUpload} />
         </Modal>
         </div>
     );

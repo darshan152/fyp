@@ -16,7 +16,19 @@ def hello_world():
 def upload_file():
     if request.method == 'POST':
         f = request.get_json()
-        print(f['data'])
+        #print(f['data'])
         df = pd.read_csv(StringIO(f['data']))
+        if df.shape[0] > 25:
+            df = df.sample(n=25)
         print(df)
-    return {'data':df.to_dict('records')}
+        cols = []
+        for key in df.to_dict().keys():
+            col = {}
+            col['title'] = key
+            col['dataIndex'] = key
+            col['key'] = key
+            cols.append(col)
+        print(cols)
+    return {'data':df.to_dict('records'),
+                'cols':cols
+                }
