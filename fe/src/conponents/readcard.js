@@ -48,26 +48,15 @@ function ReadCard(props) {
       };
       reader.readAsBinaryString(file);
     };
-    
-    const prop = {
-      name: 'file',
-      action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
-      headers: {
-        authorization: 'authorization-text',
-      },
-    
-      onChange(info) {
-        if (info.file.status !== 'uploading') {
-          console.log(info.file, info.fileList);
-        }
-    
-        if (info.file.status === 'done') {
-          message.success(`${info.file.name} file uploaded successfully`);
-        } else if (info.file.status === 'error') {
-          message.error(`${info.file.name} file upload failed.`);
-        }
-      },
+
+    const handleFetchData = () => { // access in API call
+      fetch(`${process.env.REACT_APP_BACKEND_URL}`)
+        //.then((res) => res.json())
+        .then((data) => console.log(data.text));
     };
+
+    handleFetchData();
+
 
     return (
         <div>
