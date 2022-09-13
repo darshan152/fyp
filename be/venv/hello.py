@@ -18,8 +18,8 @@ def upload_file():
         f = request.get_json()
         #print(f['data'])
         df = pd.read_csv(StringIO(f['data']))
-        if df.shape[0] > 25:
-            df = df.sample(n=25)
+        # if df.shape[0] > 25:
+        #     df = df.sample(n=25)
         print(df)
         cols = []
         for key in df.to_dict().keys():
@@ -29,6 +29,7 @@ def upload_file():
             col['key'] = key
             cols.append(col)
         print(cols)
-    return {'data':df.to_dict('records'),
-                'cols':cols
-                }
+    # return {'data':df.to_dict('records'),
+    #             'cols':cols
+    #             }
+    return df.to_csv(index=False)

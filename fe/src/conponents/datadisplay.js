@@ -1,9 +1,12 @@
 import { Button, Card, Table } from 'antd';
+import Paragraph from 'antd/lib/skeleton/Paragraph';
 import React, { useState } from 'react';
 import './ribbon.css';
+import { parse } from 'papaparse';
 
 
 function DataDisplay(props) {
+  const [parsedData, setParsedData] = useState(undefined);
 
     const columns = [
         {
@@ -23,10 +26,16 @@ function DataDisplay(props) {
         },
       ];
 
+     
+    console.log(props.data)
+    // if (props.data !== undefined && parsedData !== parse(props.data)) {
+    //   console.log(parse(props.data))
+    //   setParsedData(parse(props.data))
+    // }
+
     return (
         <div>
-            <Table  dataSource={props.data} columns={props.cols} >
-            </Table>
+            <Table dataSource={props.data} columns={props.cols} />
         </div>
     );
   }

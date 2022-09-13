@@ -6,7 +6,7 @@ import axios from 'axios';
 
 function PythonCard(props) {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    // const [csvData, setCsvData] = useState(undefined);
+     const [code, setCode] = useState("");
     // const [filename, setFilename] = useState("");
 
     const showModal = () => {
@@ -15,6 +15,11 @@ function PythonCard(props) {
     };
   
     const handleOk = () => {
+        const dic = {
+            'type':'python',
+            'code': code,
+        }
+        props.handleOk(dic);
       setIsModalOpen(false);
       console.log('Modal Ok')
     };
@@ -23,6 +28,10 @@ function PythonCard(props) {
       setIsModalOpen(false);
       console.log('Modal Cancel')
     };
+
+    const handleChange = (e) => {
+        setCode(e.target.value);
+      };
 
     // const handleFileUpload = (e) => {
     //   if (!e.target.files) {
@@ -64,7 +73,7 @@ function PythonCard(props) {
         </Card>
         </div>
         <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-        <textarea name="Text1" cols="40" rows="5"></textarea>
+        <textarea name="Text1" cols="40" rows="5" value={code} onChange={handleChange}></textarea>
 
         </Modal>
         </div>

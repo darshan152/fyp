@@ -9,7 +9,7 @@ function Ribbon(props) {
     return (
         <div>
         <ReadCard handleFileUpload={props.handleReadFileUpload} handleOk={props.handleReadOk}></ReadCard>
-        <PythonCard></PythonCard>
+        <PythonCard handleOk={props.handleOk}></PythonCard>
         </div>
     );
   }

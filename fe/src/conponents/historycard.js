@@ -3,6 +3,7 @@ import { Card } from 'antd';
 import './ribbon.css';
 
 function HistoryCard(props) {
+    console.log(props.stepsArr)
 
     return(
         <div>

@@ -6,6 +6,7 @@ import SideBar from './conponents/sidebar';
 import './App.css';
 import axios from 'axios';
 import React, { useState } from 'react';
+import Papa from "papaparse";
 
 const { Header, Sider, Content } = Layout;
 
@@ -18,6 +19,30 @@ function App() {
   const [stepsArr, setStepsArr] = useState([]);
   var tempStepsArr = [];
 
+  function processCsv(result) {
+    axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, { data: result })
+      .then(res => {
+        console.log(res.data);
+        const parsedData = Papa.parse(res.data
+            ,{
+            'header': true,
+          }
+        );
+        console.log(parsedData);
+        setTableData(parsedData.data);
+        const cols = parsedData.meta.fields.map(function(field, index){
+          return {
+            title: field,
+            dataIndex: field,
+            key: field,
+          }
+        })
+        setTableCols(cols);
+
+
+      });
+  }
+
   const handleReadOk = () => {
     const reader = new FileReader();
     reader.onload = (evt) => {
@@ -26,12 +51,7 @@ function App() {
       }
       const { result } = evt.target;
 
-      axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, {data:result})
-      .then(res => {
-        console.log(res);
-        setTableData(res.data.data);
-        setTableCols(res.data.cols);
-      })
+      processCsv(result);
     };
     reader.readAsBinaryString(selectedFile);
 
@@ -70,12 +90,19 @@ function App() {
     // };
     // reader.readAsBinaryString(file);
   };
+
+  const handleOk = (dic) =>{
+    tempStepsArr = stepsArr
+    tempStepsArr.push(dic)
+    console.log(tempStepsArr)
+    setStepsArr(tempStepsArr)
+  };
   
   return (
     <div className="App">
       <Layout>
         <Header>
-          <Ribbon handleReadFileUpload={handleReadFileUpload} handleReadOk={handleReadOk}></Ribbon>
+          <Ribbon handleReadFileUpload={handleReadFileUpload} handleReadOk={handleReadOk} handleOk={handleOk}></Ribbon>
         </Header>
         <Layout>
           <Content>
@@ -86,6 +113,8 @@ function App() {
       </Layout>
     </div>
   );
+
+  
 }
 
 
