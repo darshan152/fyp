@@ -31,7 +31,7 @@ function App() {
       }
       const { result } = evt.target;
 
-      axios.post('http://127.0.0.1:5000/upload', {data:result})
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, {data:result})
       .then(res => {
         console.log(res);
         setTableData(res.data.data);
