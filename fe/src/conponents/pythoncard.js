@@ -4,7 +4,7 @@ import './ribbon.css';
 import axios from 'axios';
 
 
-function ReadCard(props) {
+function PythonCard(props) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     // const [csvData, setCsvData] = useState(undefined);
     // const [filename, setFilename] = useState("");
@@ -15,7 +15,6 @@ function ReadCard(props) {
     };
   
     const handleOk = () => {
-      props.handleOk();
       setIsModalOpen(false);
       console.log('Modal Ok')
     };
@@ -61,18 +60,15 @@ function ReadCard(props) {
                 src="/logo192.png"
                 alt=''
             />
-            Read
+            Python
         </Card>
         </div>
         <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-          {/* <Upload {...prop}>
-            <Button>Click to Upload</Button>
-          </Upload> */}
+        <textarea name="Text1" cols="40" rows="5"></textarea>
 
-          <input type="file" accept=".csv"  onChange={props.handleFileUpload} />
         </Modal>
         </div>
     );
   }
 
-export default ReadCard;
+export default PythonCard;

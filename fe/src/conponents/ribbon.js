@@ -1,16 +1,15 @@
 import { Button, Card, Modal } from 'antd';
 import React, { useState } from 'react';
-import './components.css';
+import './ribbon.css';
 import ReadCard from './readcard';
+import PythonCard from './pythoncard';
 
 function Ribbon(props) {
 
     return (
         <div>
-        <ReadCard handleFileUpload={props.handleFileUpload}></ReadCard>
-        <Card>
-            <p>Meow</p>
-        </Card>
+        <ReadCard handleFileUpload={props.handleReadFileUpload} handleOk={props.handleReadOk}></ReadCard>
+        <PythonCard></PythonCard>
         </div>
     );
   }

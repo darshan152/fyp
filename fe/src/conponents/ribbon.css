@@ -11,3 +11,17 @@
     margin-left: 1vw;
 }
 
+.sidecard {
+    min-width: 28vw;
+    min-height: 73vh;
+}
+
+.steps {
+    min-width: 24vw;
+    min-height: 63vh;
+}
+
+.step {
+    min-width: 22vw;
+    min-height: 10vh;
+}

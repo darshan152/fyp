@@ -1,6 +1,6 @@
 import { Button, Card, Table } from 'antd';
 import React, { useState } from 'react';
-import './components.css';
+import './ribbon.css';
 
 
 function DataDisplay(props) {
