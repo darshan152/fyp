@@ -33,3 +33,17 @@ def upload_file():
     #             'cols':cols
     #             }
     return df.to_csv(index=False)
+
+@app.route('/python', methods=['GET', 'POST'])
+def python_transformation():
+    if request.method == 'POST':
+        f = request.get_json()
+        df = pd.read_csv(StringIO(f['data']))
+        exec("global final_df\n"+f['python'])
+        try:
+            ans = final_df.to_csv(index=False)
+        except:
+            print("Final df not found")
+            ans = ""
+
+    return ans

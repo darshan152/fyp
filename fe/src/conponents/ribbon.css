@@ -25,3 +25,7 @@
     min-width: 22vw;
     min-height: 10vh;
 }
+
+#blah2 {
+    width: 450px !important;
+}

@@ -1,7 +1,12 @@
 import { Card, Modal, Upload, Button, message } from 'antd';
 import React, { useState } from 'react';
 import './ribbon.css';
-import axios from 'axios';
+import AceEditor from "react-ace";
+
+import "ace-builds/src-noconflict/mode-python";
+import "ace-builds/src-noconflict/theme-xcode";
+import "ace-builds/src-noconflict/ext-language_tools"
+
 
 
 function PythonCard(props) {
@@ -30,35 +35,8 @@ function PythonCard(props) {
     };
 
     const handleChange = (e) => {
-        setCode(e.target.value);
+        setCode(e);
       };
-
-    // const handleFileUpload = (e) => {
-    //   if (!e.target.files) {
-    //     return;
-    //   }
-    //   const file = e.target.files[0];
-    //   const { name } = file;
-    //   console.log(name)
-    //   setFilename(name);
-  
-    //   const reader = new FileReader();
-    //   reader.onload = (evt) => {
-    //     if (!evt?.target?.result) {
-    //       return;
-    //     }
-    //     const { result } = evt.target;
-
-    //     axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, {data:result})
-    //     .then(res => {
-    //       console.log(res);
-    //       setCsvData(res.data.data);
-    //     })
-    //         //.then(data => this.setState({ postId: data.id }));
-    //     };
-    //   reader.readAsBinaryString(file);
-    // };
-
 
     return (
         <div>
@@ -73,7 +51,28 @@ function PythonCard(props) {
         </Card>
         </div>
         <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-        <textarea name="Text1" cols="40" rows="5" value={code} onChange={handleChange}></textarea>
+          <p>You may access the data as a pandas dataframe using the variable `df`</p>
+          <p>The final dataframe to be returned should be named `final_df`</p>
+          <AceEditor
+            placeholder=""
+            mode="python"
+            theme="xcode"
+            name="blah2"
+            // onLoad={this.onLoad}
+            onChange={handleChange}
+            fontSize={14}
+            showPrintMargin={false}
+            showGutter={true}
+            highlightActiveLine={true}
+            value={code}
+            setOptions={{
+            enableBasicAutocompletion: false,
+            enableLiveAutocompletion: true,
+            enableSnippets: false,
+            showLineNumbers: true,
+            tabSize: 2,
+            }}/>
+        {/* <textarea name="Text1" cols="40" rows="5" value={code} onChange={handleChange}></textarea> */}
 
         </Modal>
         </div>

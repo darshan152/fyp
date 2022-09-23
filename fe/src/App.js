@@ -14,6 +14,8 @@ const { Header, Sider, Content } = Layout;
 function App() {
   const [tableData, setTableData] = useState(undefined);
   const [tableCols, setTableCols] = useState(undefined);
+  const [originalData, setOriginalData] = useState(undefined);
+  const [currentData, setCurrentData] = useState(undefined);
   const [filename, setFilename] = useState("");
   const [selectedFile, setSelectedFile] = useState(undefined);
   const [stepsArr, setStepsArr] = useState([]);
@@ -23,23 +25,9 @@ function App() {
     axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, { data: result })
       .then(res => {
         console.log(res.data);
-        const parsedData = Papa.parse(res.data
-            ,{
-            'header': true,
-          }
-        );
-        console.log(parsedData);
-        setTableData(parsedData.data);
-        const cols = parsedData.meta.fields.map(function(field, index){
-          return {
-            title: field,
-            dataIndex: field,
-            key: field,
-          }
-        })
-        setTableCols(cols);
-
-
+        setCurrentData(res.data);
+        setOriginalData(res.data);
+        setData(res);
       });
   }
 
@@ -92,11 +80,40 @@ function App() {
   };
 
   const handleOk = (dic) =>{
+    transformData(dic);
     tempStepsArr = stepsArr
     tempStepsArr.push(dic)
     console.log(tempStepsArr)
     setStepsArr(tempStepsArr)
   };
+
+  function transformData(dic) {
+    if (dic['type'] === 'python') {
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/python`, {data:currentData,python:dic['code']})
+      .then(res => {
+        setData(res);
+      })
+    }
+  }
+  
+  function setData(res) {
+    setCurrentData(res.data)
+    const parsedData = Papa.parse(res.data,
+      {
+        'header': true,
+      }
+    );
+    console.log(parsedData);
+    setTableData(parsedData.data);
+    const cols = parsedData.meta.fields.map(function (field, index) {
+      return {
+        title: field,
+        dataIndex: field,
+        key: field,
+      };
+    });
+    setTableCols(cols);
+  }
   
   return (
     <div className="App">
@@ -115,6 +132,8 @@ function App() {
   );
 
   
+
+
 }
 
 
