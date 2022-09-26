@@ -1,41 +1,33 @@
-import { Button, Card, Table } from 'antd';
-import Paragraph from 'antd/lib/skeleton/Paragraph';
-import React, { useState } from 'react';
+import { Table } from 'antd';
+import React from 'react';
 import './ribbon.css';
-import { parse } from 'papaparse';
+import { useSelector }  from 'react-redux'
+import Papa from "papaparse";
 
 
 function DataDisplay(props) {
-  const [parsedData, setParsedData] = useState(undefined);
+  const currentData = useSelector(state => state.csvData.value.currentData)
 
-    const columns = [
-        {
-          title: 'A',
-          dataIndex: 'A',
-          key: 'A',
-        },
-        {
-          title: 'B',
-          dataIndex: 'B',
-          key: 'B',
-        },
-        {
-          title: 'Type',
-          dataIndex: 'Type',
-          key: 'Type',
-        },
-      ];
-
-     
-    console.log(props.data)
-    // if (props.data !== undefined && parsedData !== parse(props.data)) {
-    //   console.log(parse(props.data))
-    //   setParsedData(parse(props.data))
-    // }
+  let parsedData = ""
+  let cols = ""
+  if (currentData) {
+    parsedData = Papa.parse(currentData,
+      {
+        'header': true,
+      }
+    );
+    cols = parsedData.meta.fields.map(function (field, index) {
+      return {
+        title: field,
+        dataIndex: field,
+        key: field,
+      };
+    });     
+  }
 
     return (
         <div>
-            <Table dataSource={props.data} columns={props.cols} />
+            <Table dataSource={parsedData.data} columns={cols} />
         </div>
     );
   }

@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card } from 'antd';
+import { useSelector } from 'react-redux'
 import './ribbon.css';
 
 function HistoryCard(props) {
-    console.log(props.stepsArr)
+    const stepsArr = useSelector(state => state.stepsArr.value)
 
     return(
         <div>
-            {props.stepsArr.map(function(steps, index){
-                    return <Card className='step' key={ index }>{steps['type']}</Card>;
+            {stepsArr.map(function(steps, index){
+                    return <Card className='step' key={ index }>{steps['type']}<button>Edit</button></Card>;
                   })}
         </div>
     );
