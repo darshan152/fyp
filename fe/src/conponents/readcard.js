@@ -1,13 +1,18 @@
-import { Card, Modal, Upload, Button, message } from 'antd';
+import { Card, Modal } from 'antd';
 import React, { useState } from 'react';
 import './ribbon.css';
 import axios from 'axios';
+import { useSelector, useDispatch } from 'react-redux'
+import { setOriginalData, setFilename } from '../states/csvDataSlice';
+import { rewriteSteps } from '../states/stepsArrSlice'
 
 
 function ReadCard(props) {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    // const [csvData, setCsvData] = useState(undefined);
-    // const [filename, setFilename] = useState("");
+    const [selectedFile, setSelectedFile] = useState(undefined);
+
+    const filename = useSelector(state => state.csvData.value.filename)
+    const dispatch = useDispatch()
 
     const showModal = () => {
       setIsModalOpen(true);
@@ -15,7 +20,24 @@ function ReadCard(props) {
     };
   
     const handleOk = () => {
-      props.handleOk();
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        if (!evt?.target?.result) {
+          return;
+        }
+        const { result } = evt.target;
+  
+        processCsv(result);
+      };
+      reader.readAsBinaryString(selectedFile);
+  
+      let tempStepsArr = [];
+      tempStepsArr.push(
+      {'type':'read',
+      'filename':filename, 
+      })
+      dispatch(rewriteSteps(tempStepsArr))
+      console.log(tempStepsArr)
       setIsModalOpen(false);
       console.log('Modal Ok')
     };
@@ -25,32 +47,24 @@ function ReadCard(props) {
       console.log('Modal Cancel')
     };
 
-    // const handleFileUpload = (e) => {
-    //   if (!e.target.files) {
-    //     return;
-    //   }
-    //   const file = e.target.files[0];
-    //   const { name } = file;
-    //   console.log(name)
-    //   setFilename(name);
-  
-    //   const reader = new FileReader();
-    //   reader.onload = (evt) => {
-    //     if (!evt?.target?.result) {
-    //       return;
-    //     }
-    //     const { result } = evt.target;
+    const handleFileUpload = (e) => {
+      if (!e.target.files) {
+        return;
+      }
+      const file = e.target.files[0];
+      const { name } = file;
+      // console.log(name)
+      dispatch(setFilename(name))
+      setSelectedFile(file);
+    };
 
-    //     axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, {data:result})
-    //     .then(res => {
-    //       console.log(res);
-    //       setCsvData(res.data.data);
-    //     })
-    //         //.then(data => this.setState({ postId: data.id }));
-    //     };
-    //   reader.readAsBinaryString(file);
-    // };
-
+    function processCsv(result) {
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, { data: result })
+        .then(res => {
+          // console.log(res.data);
+          dispatch(setOriginalData(res.data))
+        });
+    }
 
     return (
         <div>
@@ -69,7 +83,7 @@ function ReadCard(props) {
             <Button>Click to Upload</Button>
           </Upload> */}
 
-          <input type="file" accept=".csv"  onChange={props.handleFileUpload} />
+          <input type="file" accept=".csv"  onChange={handleFileUpload} />
         </Modal>
         </div>
     );

@@ -1,7 +1,12 @@
-import { Card, Modal, Upload, Button, message } from 'antd';
+import { Card, Modal } from 'antd';
 import React, { useState } from 'react';
 import './ribbon.css';
 import AceEditor from "react-ace";
+import { useSelector, useDispatch } from 'react-redux'
+import { addStep } from '../states/stepsArrSlice'
+import { setCurrentData } from '../states/csvDataSlice';
+import axios from 'axios';
+
 
 import "ace-builds/src-noconflict/mode-python";
 import "ace-builds/src-noconflict/theme-xcode";
@@ -10,9 +15,11 @@ import "ace-builds/src-noconflict/ext-language_tools"
 
 
 function PythonCard(props) {
+  const currentData = useSelector(state => state.csvData.value.currentData)
+  const dispatch = useDispatch()
+
     const [isModalOpen, setIsModalOpen] = useState(false);
-     const [code, setCode] = useState("");
-    // const [filename, setFilename] = useState("");
+    const [code, setCode] = useState("");
 
     const showModal = () => {
       setIsModalOpen(true);
@@ -24,7 +31,11 @@ function PythonCard(props) {
             'type':'python',
             'code': code,
         }
-        props.handleOk(dic);
+      dispatch(addStep(dic));
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/python`, {data:currentData,python:dic['code']})
+      .then(res => {
+        dispatch(setCurrentData(res.data));
+      })
       setIsModalOpen(false);
       console.log('Modal Ok')
     };
@@ -58,7 +69,6 @@ function PythonCard(props) {
             mode="python"
             theme="xcode"
             name="blah2"
-            // onLoad={this.onLoad}
             onChange={handleChange}
             fontSize={14}
             showPrintMargin={false}
@@ -72,8 +82,6 @@ function PythonCard(props) {
             showLineNumbers: true,
             tabSize: 2,
             }}/>
-        {/* <textarea name="Text1" cols="40" rows="5" value={code} onChange={handleChange}></textarea> */}
-
         </Modal>
         </div>
     );
