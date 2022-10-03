@@ -11,11 +11,14 @@ export const stepsArrSlice = createSlice({
     },
     rewriteSteps: (state, action) => {
         state.value = action.payload
-    }
+    },
+    editStep: (state, action) => {
+      state.value = action.payload
+  },
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { addStep, rewriteSteps } = stepsArrSlice.actions
+export const { addStep, rewriteSteps, editStep } = stepsArrSlice.actions
 
 export default stepsArrSlice.reducer

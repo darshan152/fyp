@@ -16,34 +16,41 @@ def hello_world():
 def upload_file():
     if request.method == 'POST':
         f = request.get_json()
-        #print(f['data'])
-        df = pd.read_csv(StringIO(f['data']))
+        df = read(f['data'],f['dic'])
         # if df.shape[0] > 25:
         #     df = df.sample(n=25)
-        print(df)
-        cols = []
-        for key in df.to_dict().keys():
-            col = {}
-            col['title'] = key
-            col['dataIndex'] = key
-            col['key'] = key
-            cols.append(col)
-        print(cols)
-    # return {'data':df.to_dict('records'),
-    #             'cols':cols
-    #             }
     return df.to_csv(index=False)
+
+def read(data,dic):
+    df = pd.read_csv(StringIO(data))
+    return df
 
 @app.route('/python', methods=['GET', 'POST'])
 def python_transformation():
     if request.method == 'POST':
         f = request.get_json()
         df = pd.read_csv(StringIO(f['data']))
-        exec("global final_df\n"+f['python'])
-        try:
-            ans = final_df.to_csv(index=False)
-        except:
-            print("Final df not found")
-            ans = ""
+        ans = python(f['dic'],df)
+    return ans.to_csv(index=False)
 
+def python(dic,df):
+    exec("global final_df\n"+dic['code'])
+    try:
+        ans = final_df
+    except:
+        print("Final df not found")
+        ans = pd.DataFrame()
     return ans
+
+@app.route('/retransform', methods=['GET', 'POST'])
+def retransformation():
+    if request.method == 'POST':
+        f = request.get_json()
+        stepsArr = f['stepsArr']
+        df = read(f['data'],stepsArr[0])
+        for step in stepsArr:
+            print(step)
+            if step['type'] == 'python':
+                df = python(step,df)
+    print(df)
+    return df.to_csv(index=False)

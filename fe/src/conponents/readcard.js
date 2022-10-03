@@ -5,17 +5,19 @@ import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux'
 import { setOriginalData, setFilename } from '../states/csvDataSlice';
 import { rewriteSteps } from '../states/stepsArrSlice'
+import { setRead } from '../states/cardModalSlice';
 
 
 function ReadCard(props) {
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedFile, setSelectedFile] = useState(undefined);
 
     const filename = useSelector(state => state.csvData.value.filename)
+    const isModalOpen = useSelector(state => state.cardModal.value.read)
+
     const dispatch = useDispatch()
 
     const showModal = () => {
-      setIsModalOpen(true);
+      dispatch(setRead(true));
       console.log('Opening Modal')
     };
   
@@ -38,12 +40,12 @@ function ReadCard(props) {
       })
       dispatch(rewriteSteps(tempStepsArr))
       console.log(tempStepsArr)
-      setIsModalOpen(false);
+      dispatch(setRead(false));
       console.log('Modal Ok')
     };
   
     const handleCancel = () => {
-      setIsModalOpen(false);
+      dispatch(setRead(false));
       console.log('Modal Cancel')
     };
 
@@ -59,7 +61,7 @@ function ReadCard(props) {
     };
 
     function processCsv(result) {
-      axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, { data: result })
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, { data: result, dic:{} })
         .then(res => {
           // console.log(res.data);
           dispatch(setOriginalData(res.data))

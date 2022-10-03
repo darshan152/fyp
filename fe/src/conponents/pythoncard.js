@@ -1,28 +1,30 @@
 import { Card, Modal } from 'antd';
 import React, { useState } from 'react';
 import './ribbon.css';
-import AceEditor from "react-ace";
 import { useSelector, useDispatch } from 'react-redux'
-import { addStep } from '../states/stepsArrSlice'
+import { addStep, editStep } from '../states/stepsArrSlice'
 import { setCurrentData } from '../states/csvDataSlice';
+import { setPython } from '../states/cardModalSlice';
 import axios from 'axios';
-
-
-import "ace-builds/src-noconflict/mode-python";
-import "ace-builds/src-noconflict/theme-xcode";
-import "ace-builds/src-noconflict/ext-language_tools"
+import { setEditData, resetEditData } from '../states/editDataSlice';
+import PythonModal from './pythonmodal';
 
 
 
 function PythonCard(props) {
   const currentData = useSelector(state => state.csvData.value.currentData)
+  const originalData = useSelector(state => state.csvData.value.originalData)
+  const isModalOpen = useSelector(state => state.cardModal.value.python)
+  const oldDic = useSelector(state => state.editData.value.dic)
+  const isEdit = useSelector(state => state.editData.value.isEdit)
+  const stepsArr = useSelector(state => state.stepsArr.value)
   const dispatch = useDispatch()
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [code, setCode] = useState("");
+  const [code, setCode] = useState("");
+
 
     const showModal = () => {
-      setIsModalOpen(true);
+      dispatch(setPython(true));
       console.log('Opening Modal')
     };
   
@@ -32,22 +34,47 @@ function PythonCard(props) {
             'code': code,
         }
       dispatch(addStep(dic));
-      axios.post(`${process.env.REACT_APP_BACKEND_URL}/python`, {data:currentData,python:dic['code']})
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/python`, {data:currentData,dic:dic})
       .then(res => {
+        console.log(res.data)
         dispatch(setCurrentData(res.data));
       })
-      setIsModalOpen(false);
+      dispatch(setPython(false));
       console.log('Modal Ok')
+      setCode("")
     };
+
+  const handleOkEdit = () => {
+    let newStepsArr = [...stepsArr]
+    newStepsArr[oldDic.index] = oldDic
+    console.log(newStepsArr)
+    axios.post(`${process.env.REACT_APP_BACKEND_URL}/retransform`, {data:originalData,stepsArr:newStepsArr})
+    .then(res => {
+      dispatch(setCurrentData(res.data));
+      dispatch(resetEditData());
+      dispatch(editStep(newStepsArr));
+      dispatch(setPython(false));
+    })
+
+
+  };
   
     const handleCancel = () => {
-      setIsModalOpen(false);
+      dispatch(setPython(false));
       console.log('Modal Cancel')
+      setCode("")
+      dispatch(resetEditData())
     };
 
     const handleChange = (e) => {
         setCode(e);
       };
+    
+    const handleChangeEdit = (e) => {
+      let newdic = {...oldDic}
+      newdic.code=e
+      dispatch(setEditData(newdic))
+    };
 
     return (
         <div>
@@ -61,28 +88,12 @@ function PythonCard(props) {
             Python
         </Card>
         </div>
-        <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-          <p>You may access the data as a pandas dataframe using the variable `df`</p>
-          <p>The final dataframe to be returned should be named `final_df`</p>
-          <AceEditor
-            placeholder=""
-            mode="python"
-            theme="xcode"
-            name="blah2"
-            onChange={handleChange}
-            fontSize={14}
-            showPrintMargin={false}
-            showGutter={true}
-            highlightActiveLine={true}
-            value={code}
-            setOptions={{
-            enableBasicAutocompletion: false,
-            enableLiveAutocompletion: true,
-            enableSnippets: false,
-            showLineNumbers: true,
-            tabSize: 2,
-            }}/>
-        </Modal>
+        { !isEdit ? 
+        <PythonModal isModalOpen={isModalOpen} handleCancel={handleCancel} handleChange={handleChange} handleOk={handleOk} code={code}/>
+        : 
+        <PythonModal isModalOpen={isModalOpen} handleCancel={handleCancel} handleChange={handleChangeEdit} handleOk={handleOkEdit} code={oldDic.code}/>
+        }
+        
         </div>
     );
   }
