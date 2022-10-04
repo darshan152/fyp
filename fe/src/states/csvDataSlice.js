@@ -15,7 +15,6 @@ export const csvDataSlice = createSlice({
     },
     setOriginalData: (state, action) => {
         state.value.originalData = action.payload
-        state.value.currentData = action.payload
     },
     setFilename: (state, action) => {
         state.value.filename = action.payload
