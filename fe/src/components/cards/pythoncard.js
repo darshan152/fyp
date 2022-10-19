@@ -1,13 +1,13 @@
 import { Card, Modal } from 'antd';
 import React, { useState } from 'react';
-import './ribbon.css';
+import '../components.css';
 import { useSelector, useDispatch } from 'react-redux'
-import { addStep, editStep } from '../states/stepsArrSlice'
-import { setCurrentData } from '../states/csvDataSlice';
-import { setPython } from '../states/cardModalSlice';
+import { addStep, editStep } from '../../states/stepsArrSlice'
+import { setCurrentData } from '../../states/csvDataSlice';
+import { setPython } from '../../states/cardModalSlice';
 import axios from 'axios';
-import { setEditData, resetEditData } from '../states/editDataSlice';
-import PythonModal from './pythonmodal';
+import { setEditData, resetEditData } from '../../states/editDataSlice';
+import PythonModal from '../modals/pythonmodal';
 
 
 

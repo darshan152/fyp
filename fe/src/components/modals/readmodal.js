@@ -1,11 +1,6 @@
-import { Card, Modal } from 'antd';
-import React, { useState } from 'react';
-import './ribbon.css';
-import axios from 'axios';
-import { useSelector, useDispatch } from 'react-redux'
-import { setOriginalData, setFilename } from '../states/csvDataSlice';
-import { rewriteSteps } from '../states/stepsArrSlice'
-import { setRead } from '../states/cardModalSlice';
+import { Modal } from 'antd';
+import React from 'react';
+import '../components.css';
 
 
 function ReadModal(props) {

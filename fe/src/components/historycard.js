@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux'
 import { setPython, setRead } from '../states/cardModalSlice';
 import axios from 'axios';
 
-import './ribbon.css';
+import './components.css';
 import { setEditData } from '../states/editDataSlice';
 import { editStep } from '../states/stepsArrSlice';
 import { setCurrentData } from '../states/csvDataSlice';

@@ -1,6 +1,6 @@
 import { Table } from 'antd';
 import React from 'react';
-import './ribbon.css';
+import './components.css';
 import { useSelector }  from 'react-redux'
 import Papa from "papaparse";
 

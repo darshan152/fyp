@@ -1,7 +1,7 @@
 import { Layout } from 'antd';
-import Ribbon from './conponents/ribbon';
-import DataDisplay from './conponents/datadisplay';
-import SideBar from './conponents/sidebar';
+import Ribbon from './components/ribbon';
+import DataDisplay from './components/datadisplay';
+import SideBar from './components/sidebar';
 import './App.css';
 import React from 'react';
 

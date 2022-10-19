@@ -1,5 +1,5 @@
 import React from 'react';
-import './ribbon.css';
+import '../components.css';
 import AceEditor from "react-ace";
 import { Modal } from 'antd';
 

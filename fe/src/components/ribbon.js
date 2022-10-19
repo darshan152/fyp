@@ -1,8 +1,8 @@
 import { Button, Card, Modal } from 'antd';
 import React, { useState } from 'react';
-import './ribbon.css';
-import ReadCard from './readcard';
-import PythonCard from './pythoncard';
+import './components.css';
+import ReadCard from './cards/readcard';
+import PythonCard from './cards/pythoncard';
 
 function Ribbon(props) {
 

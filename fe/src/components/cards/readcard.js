@@ -1,13 +1,13 @@
 import { Card, Modal } from 'antd';
 import React, { useState } from 'react';
-import './ribbon.css';
+import '../components.css';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux'
-import { setOriginalData, setFilename, setCurrentData } from '../states/csvDataSlice';
-import { editStep, rewriteSteps } from '../states/stepsArrSlice'
-import { setRead } from '../states/cardModalSlice';
-import ReadModal from './readmodal';
-import { resetEditData } from '../states/editDataSlice';
+import { setOriginalData, setFilename, setCurrentData } from '../../states/csvDataSlice';
+import { editStep, rewriteSteps } from '../../states/stepsArrSlice'
+import { setRead } from '../../states/cardModalSlice';
+import ReadModal from '../modals/readmodal';
+import { resetEditData } from '../../states/editDataSlice';
 
 
 function ReadCard(props) {

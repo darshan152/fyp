@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from 'antd';
 import HistoryCard from './historycard';
-import './ribbon.css';
+import './components.css';
 
 function SideBar(props) {
     return(
