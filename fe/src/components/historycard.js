@@ -9,6 +9,7 @@ import './components.css';
 import { setEditData } from '../states/editDataSlice';
 import { editStep } from '../states/stepsArrSlice';
 import { setCurrentData } from '../states/csvDataSlice';
+import DownloadData from './downloaddata';
 
 function HistoryCard(props) {
     const stepsArr = useSelector(state => state.stepsArr.value)
@@ -56,6 +57,7 @@ function HistoryCard(props) {
                         </Card>
                     )
                   })}
+            <DownloadData/>
         </div>
     );
 }
