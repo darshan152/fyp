@@ -116,11 +116,12 @@ function ReadCard(props) {
         <div onClick={showModal}>
         <Card>
             <img
-                width={20}
-                src="/logo192.png"
+                width={50}
+                src="/book.png"
                 alt=''
             />
-            Read
+            <br/>
+            <p className='cardTest'>Read</p>
         </Card>
         </div>
         {!isEdit ?

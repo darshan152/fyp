@@ -1,6 +1,6 @@
 .ant-card {
-    max-width: 5vw;
-    max-height: 13vh;
+    width: 5vw;
+    height: 12.5vh;
     float: left;
     text-align: center;
 
@@ -28,4 +28,16 @@
 
 #blah2 {
     width: 450px !important;
+}
+
+img {
+    width: 3vw;
+}
+
+.ant-card-body {
+    padding: 0.5vw !important;
+}
+
+.cardTest {
+    padding-top: 1.75vh;
 }

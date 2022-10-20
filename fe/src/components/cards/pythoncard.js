@@ -81,11 +81,12 @@ function PythonCard(props) {
         <div onClick={showModal}>
         <Card>
             <img
-                width={20}
-                src="/logo192.png"
+                width={50}
+                src="/python.png"
                 alt=''
             />
-            Python
+            <br/>
+            <p className='cardTest'>Python</p>
         </Card>
         </div>
         { !isEdit ? 
