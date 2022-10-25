@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import '../components.css';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux'
-import { setOriginalData, setFilename, setCurrentData } from '../../states/csvDataSlice';
+import { setOriginalData, setFilename, setCurrentData, setDataTypes } from '../../states/csvDataSlice';
 import { editStep, rewriteSteps } from '../../states/stepsArrSlice'
 import { setRead } from '../../states/cardModalSlice';
 import ReadModal from '../modals/readmodal';
@@ -106,8 +106,10 @@ function ReadCard(props) {
       dispatch(setOriginalData(result))
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, { data: result, dic:{} })
         .then(res => {
-          // console.log(res.data);
-          dispatch(setCurrentData(res.data))
+          console.log(res.data.datatypes);
+          dispatch(setCurrentData(res.data.data))
+          dispatch(setDataTypes(res.data.datatypes))
+
         });
     }
 

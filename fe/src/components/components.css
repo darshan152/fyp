@@ -41,3 +41,7 @@ img {
 .cardTest {
     padding-top: 1.75vh;
 }
+
+.datatable th {
+    white-space: pre-line;
+}

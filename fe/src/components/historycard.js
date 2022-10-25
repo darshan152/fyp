@@ -8,7 +8,7 @@ import axios from 'axios';
 import './components.css';
 import { setEditData } from '../states/editDataSlice';
 import { editStep } from '../states/stepsArrSlice';
-import { setCurrentData } from '../states/csvDataSlice';
+import { setCurrentData,setDataTypes } from '../states/csvDataSlice';
 import DownloadData from './downloaddata';
 
 function HistoryCard(props) {
@@ -38,7 +38,8 @@ function HistoryCard(props) {
         newSteps = newSteps.slice(0,index).concat(newSteps.slice(index+1,newSteps.length))
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/retransform`, {data:originalData,stepsArr:newSteps})
         .then(res => {
-            dispatch(setCurrentData(res.data));
+            dispatch(setCurrentData(res.data.data));
+            dispatch(setDataTypes(res.data.datatypes));
             dispatch(editStep(newSteps));
         })
 

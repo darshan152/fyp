@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import '../components.css';
 import { useSelector, useDispatch } from 'react-redux'
 import { addStep, editStep } from '../../states/stepsArrSlice'
-import { setCurrentData } from '../../states/csvDataSlice';
+import { setCurrentData, setDataTypes } from '../../states/csvDataSlice';
 import { setPython } from '../../states/cardModalSlice';
 import axios from 'axios';
 import { setEditData, resetEditData } from '../../states/editDataSlice';
@@ -18,6 +18,7 @@ function PythonCard(props) {
   const oldDic = useSelector(state => state.editData.value.dic)
   const isEdit = useSelector(state => state.editData.value.isEdit)
   const stepsArr = useSelector(state => state.stepsArr.value)
+  const datatypes = useSelector(state => state.csvData.value.datatypes)
   const dispatch = useDispatch()
 
   const [code, setCode] = useState("");
@@ -34,10 +35,11 @@ function PythonCard(props) {
             'code': code,
         }
       dispatch(addStep(dic));
-      axios.post(`${process.env.REACT_APP_BACKEND_URL}/python`, {data:currentData,dic:dic})
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/python`, {data:currentData,datatypes:datatypes,dic:dic})
       .then(res => {
         console.log(res.data)
-        dispatch(setCurrentData(res.data));
+        dispatch(setCurrentData(res.data.data));
+        dispatch(setDataTypes(res.data.datatypes));
       })
       dispatch(setPython(false));
       console.log('Modal Ok')
@@ -50,7 +52,8 @@ function PythonCard(props) {
     console.log(newStepsArr)
     axios.post(`${process.env.REACT_APP_BACKEND_URL}/retransform`, {data:originalData,stepsArr:newStepsArr})
     .then(res => {
-      dispatch(setCurrentData(res.data));
+      dispatch(setCurrentData(res.data.data));
+      dispatch(setDataTypes(res.data.datatypes));
       dispatch(resetEditData());
       dispatch(editStep(newStepsArr));
       dispatch(setPython(false));
