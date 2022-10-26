@@ -1,6 +1,8 @@
 import React from 'react';
 import { useSelector } from 'react-redux'
+import { Button } from 'antd';
 import './components.css';
+import { DownloadOutlined } from '@ant-design/icons';
 
 
 function DownloadData(props) {
@@ -20,7 +22,7 @@ function DownloadData(props) {
     }
     return(
         <div>
-            <button id='csvDownload' onClick={downloadCsv} value='download'>Download</button>
+            <Button id='csvDownload' onClick={downloadCsv} value='download' shape='round' icon={<DownloadOutlined />}>Download</Button>
         </div>
     );
 }

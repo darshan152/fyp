@@ -82,7 +82,7 @@ function PythonCard(props) {
     return (
         <div>
         <div onClick={showModal}>
-        <Card>
+        <Card className='TransformCard'>
             <img
                 width={50}
                 src="/python.png"

@@ -11,6 +11,23 @@
     margin-left: 1vw;
 }
 
+.TransformCard {
+    min-width:60px;
+}
+
+#root > div > section > section > main > div > div > div > div > div > div > div > table > tbody > tr {
+    line-height: 20px;
+}
+
+#root > div > section > section > main > div > div > div > div > div > div > div.ant-table-header > table > thead > tr:nth-child(2) {
+    line-height: 0;
+    font-size: 12px;
+}
+
+#root > div > section > section > main > div > div > div > div > div > div > div.ant-table-header > table > thead > tr:nth-child(1) {
+    line-height: 1;
+}
+
 .sidecard {
     min-width: 28vw;
     min-height: 73vh;
@@ -44,4 +61,21 @@ img {
 
 .datatable th {
     white-space: pre-line;
+}
+
+#csvDownload {
+    margin-top: 10px;
+}
+
+#root > div > section > section > aside > div > div > div.ant-card.ant-card-bordered.sidecard > div > div > div > div > div > div > div > table > tbody > tr.ant-table-row.ant-table-row-level-0.read {
+    cursor: pointer;
+}
+
+#root > div > section > section > aside > div > div > div.ant-card.ant-card-bordered.sidecard > div > div > div > div > div > div > div > table > tbody > tr.ant-table-row.ant-table-row-level-0 > td > div {
+    float: right;
+}
+
+#root > div > section > section > aside > div > div > div.ant-card.ant-card-bordered.sidecard > div > div > div > div > div > div > div > table > tbody > tr > td:nth-child(1) {
+    text-align: center;
+    text-transform: capitalize;
 }

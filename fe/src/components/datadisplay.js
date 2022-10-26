@@ -23,9 +23,12 @@ function DataDisplay(props) {
     }
     cols = parsedData.meta.fields.map(function (field, index) {
       return {
-        title: field + '\n' + json[field],
-        dataIndex: field,
-        key: field,
+        title: field,
+        children: [{
+          title: json[field],
+          dataIndex: field,
+          key: field,
+        }],        
       };
     });     
   }
@@ -33,7 +36,15 @@ function DataDisplay(props) {
 
     return (
         <div>
-            <Table className='datatable' dataSource={parsedData.data} columns={cols} />
+            <Table 
+            className='datatable' 
+            dataSource={parsedData.data} 
+            pagination={false} 
+            scroll={{
+            x: true,
+            y: '70vh',
+            }} 
+            columns={cols} />
         </div>
     );
   }

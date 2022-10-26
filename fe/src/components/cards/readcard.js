@@ -116,7 +116,7 @@ function ReadCard(props) {
     return (
         <div>
         <div onClick={showModal}>
-        <Card>
+        <Card className='TransformCard'>
             <img
                 width={50}
                 src="/book.png"
