@@ -13,7 +13,7 @@ import "ace-builds/src-noconflict/ext-language_tools"
 function PythonModal(props) {
     return (
         <div>
-          <Modal title="Basic Modal" open={props.isModalOpen} onOk={props.handleOk} onCancel={props.handleCancel}>
+          <Modal title="Python Transformation" open={props.isModalOpen} onOk={props.handleOk} onCancel={props.handleCancel}>
           <p>You may access the data as a pandas dataframe using the variable `df`</p>
           <p>The final dataframe to be returned should be named `final_df`</p>
           <AceEditor

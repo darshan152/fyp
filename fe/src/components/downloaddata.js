@@ -22,7 +22,7 @@ function DownloadData(props) {
     }
     return(
         <div>
-            <Button id='csvDownload' onClick={downloadCsv} value='download' shape='round' icon={<DownloadOutlined />}>Download</Button>
+            <Button id='csvDownload' type='primary' onClick={downloadCsv} value='download' shape='round' icon={<DownloadOutlined />}>Download</Button>
         </div>
     );
 }

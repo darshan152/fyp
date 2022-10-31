@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import '../components.css';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux'
-import { setOriginalData, setFilename, setCurrentData, setDataTypes } from '../../states/csvDataSlice';
+import { setOriginalData, setFilename, setCurrentData, setDataTypes, setLoading } from '../../states/csvDataSlice';
 import { editStep, rewriteSteps } from '../../states/stepsArrSlice'
 import { setRead } from '../../states/cardModalSlice';
 import ReadModal from '../modals/readmodal';
@@ -26,6 +26,8 @@ function ReadCard(props) {
     };
   
     const handleOk = () => {
+      dispatch(setLoading(true))
+      dispatch(setRead(false));
       const reader = new FileReader();
       reader.onload = (evt) => {
         if (!evt?.target?.result) {
@@ -43,12 +45,14 @@ function ReadCard(props) {
       'filename':filename, 
       })
       dispatch(rewriteSteps(tempStepsArr))
-      console.log(tempStepsArr)
-      dispatch(setRead(false));
+      console.log(tempStepsArr)      
+      
       console.log('Modal Ok')
     };
 
     const handleOkEdit = () => {
+      dispatch(setLoading(true))
+      dispatch(setRead(false));
       const reader = new FileReader();
       reader.onload = (evt) => {
         if (!evt?.target?.result) {
@@ -56,34 +60,25 @@ function ReadCard(props) {
         }
         const { result } = evt.target;
   
-        console.log(tempStepsArr)
-        dispatch(setRead(false));
         dispatch(setOriginalData(result));
+        let tempStepsArr = [...stepsArr]
+        tempStepsArr[0] = {'type':'read',
+        'filename':filename, 
+        }
+        console.log(tempStepsArr)
         console.log('Modal Ok')
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/retransform`, {data:result,stepsArr:tempStepsArr})
         .then(res => {
-          dispatch(setCurrentData(res.data));
+          dispatch(setCurrentData(res.data.data));
+          dispatch(setDataTypes(res.data.datatypes));
           dispatch(resetEditData());
           dispatch(editStep(tempStepsArr));
+          dispatch(setLoading(false))
           dispatch(setRead(false));
         })
       };
       reader.readAsBinaryString(selectedFile);
-      
-      let tempStepsArr = [...stepsArr]
-      tempStepsArr[0] = {'type':'read',
-      'filename':filename, 
-      }
-      console.log(tempStepsArr)
-      dispatch(setRead(false));
-      console.log('Modal Ok')
-      axios.post(`${process.env.REACT_APP_BACKEND_URL}/retransform`, {data:originalData,stepsArr:tempStepsArr})
-      .then(res => {
-        dispatch(setCurrentData(res.data));
-        dispatch(resetEditData());
-        dispatch(editStep(tempStepsArr));
-        dispatch(setRead(false));
-      })
+
     };
   
     const handleCancel = () => {
@@ -106,10 +101,9 @@ function ReadCard(props) {
       dispatch(setOriginalData(result))
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, { data: result, dic:{} })
         .then(res => {
-          console.log(res.data.datatypes);
           dispatch(setCurrentData(res.data.data))
           dispatch(setDataTypes(res.data.datatypes))
-
+          dispatch(setLoading(false))
         });
     }
 

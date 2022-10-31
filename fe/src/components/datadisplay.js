@@ -8,6 +8,7 @@ import Papa from "papaparse";
 function DataDisplay(props) {
   const currentData = useSelector(state => state.csvData.value.currentData)
   const datatypes = useSelector(state => state.csvData.value.datatypes)
+  const loading = useSelector(state => state.csvData.value.loading)
 
   let parsedData = ""
   let cols = ""
@@ -39,10 +40,11 @@ function DataDisplay(props) {
             <Table 
             className='datatable' 
             dataSource={parsedData.data} 
-            pagination={false} 
+            pagination={{ pageSize: 25 }}
+            loading = {loading }
             scroll={{
             x: true,
-            y: '70vh',
+            y: '65vh',
             }} 
             columns={cols} />
         </div>

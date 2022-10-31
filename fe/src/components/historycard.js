@@ -1,4 +1,4 @@
-import { Card, Space } from 'antd';
+import { Card, Space, Button } from 'antd';
 import { useSelector } from 'react-redux'
 import { useDispatch } from 'react-redux'
 import { setPython, setRead } from '../states/cardModalSlice';
@@ -7,12 +7,13 @@ import axios from 'axios';
 import './components.css';
 import { setEditData } from '../states/editDataSlice';
 import { editStep } from '../states/stepsArrSlice';
-import { setCurrentData,setDataTypes } from '../states/csvDataSlice';
+import { setCurrentData,setDataTypes,setLoading } from '../states/csvDataSlice';
 import { Table } from 'antd';
 import update from 'immutability-helper';
 import React, { useCallback, useRef, useState } from 'react';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
 
 function HistoryCard(props) {
@@ -82,9 +83,9 @@ function HistoryCard(props) {
         key: 'action',
         render: (_, record) => (
           <Space size="middle">
-            <button onClick={() => handleEdit(stepsArr[record.key],record.key)}>Edit</button>
+            <Button className='stepEditButton' onClick={() => handleEdit(stepsArr[record.key],record.key)} shape="round" icon={<EditOutlined />}/>
             { (stepsArr[record.key] && stepsArr[record.key].type!=='read') ?
-            <button onClick={() => handleDelete(record.key)}>Delete</button> :
+            <Button className='stepDeleteButton' onClick={() => handleDelete(record.key)} shape="round" icon={<DeleteOutlined />}/> :
             null
           }
           </Space>
@@ -109,6 +110,7 @@ function HistoryCard(props) {
     }
 
     const handleDelete = (index) => {
+        dispatch(setLoading(true))
         let newSteps = [...stepsArr]
         newSteps = newSteps.slice(0,index).concat(newSteps.slice(index+1,newSteps.length))
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/retransform`, {data:originalData,stepsArr:newSteps})
@@ -116,6 +118,7 @@ function HistoryCard(props) {
             dispatch(setCurrentData(res.data.data));
             dispatch(setDataTypes(res.data.datatypes));
             dispatch(editStep(newSteps));
+            dispatch(setLoading(false))
         })
     }
 
@@ -158,12 +161,15 @@ function HistoryCard(props) {
         },
         [stepsArr,dispatch,originalData],
       );
+      console.log(stepsArr)
       return (
+        <div>
+        { stepsArr.length ? 
         <DndProvider backend={HTML5Backend}>
           <Table
             pagination={false} 
             scroll={{
-            x: true,
+            x: false,
             y: '65vh',
             }} 
             showHeader={false}
@@ -179,6 +185,8 @@ function HistoryCard(props) {
             }}
           />
         </DndProvider>
+        : <button onClick={() => dispatch(setRead(true))}>Read in data</button>} 
+        </div>
       );
 
 }

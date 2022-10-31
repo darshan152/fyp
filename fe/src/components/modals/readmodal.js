@@ -6,7 +6,7 @@ import '../components.css';
 function ReadModal(props) {
 
     return (
-        <Modal title="Basic Modal" open={props.isModalOpen} onOk={props.handleOk} onCancel={props.handleCancel}>
+        <Modal title="Read Data" open={props.isModalOpen} onOk={props.handleOk} onCancel={props.handleCancel}>
           {/* <Upload {...prop}>
             <Button>Click to Upload</Button>
           </Upload> */}

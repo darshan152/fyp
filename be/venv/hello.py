@@ -31,6 +31,7 @@ def read(data,dic):
     return df
 
 def extract_dtypes(df):
+    dtype = None
     if isinstance(df, pd.DataFrame):
         json_types = json.loads(df.dtypes.to_json())
         dtype = {}

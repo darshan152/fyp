@@ -13,6 +13,32 @@
 
 .TransformCard {
     min-width:60px;
+    background-color: #94b8f2 !important;
+    border-radius: 10px !important;
+}
+
+#root > div > section > section > aside > div > div > div.ant-card.ant-card-bordered.sidecard > div > div > div > div > div > div > div > div > table > tbody > tr {
+    /* background-color: #EDF2F4; */
+}
+
+#root > div > section > section > aside > div > div > div.ant-card.ant-card-bordered.sidecard > div > div > div > div > div > div > div > div > table > tbody > tr > td > div > div > button {
+    /* background-color: #EDF2F4; */
+}
+
+#root > div > section > section > aside > div > div > div.ant-card.ant-card-bordered.sidecard {
+    background-color: #c0c0c0;
+}
+
+#root > div > section > section > aside > div {
+    background-color: #E9E9E9;
+}
+
+#root > div > section > section > main {
+    background-color: #E9E9E9;
+}
+
+#root > div > section > header {
+    background-color: #F2F2F2;
 }
 
 #root > div > section > section > main > div > div > div > div > div > div > div > table > tbody > tr {
@@ -75,7 +101,11 @@ img {
     float: right;
 }
 
-#root > div > section > section > aside > div > div > div.ant-card.ant-card-bordered.sidecard > div > div > div > div > div > div > div > table > tbody > tr > td:nth-child(1) {
+#root > div > section > section > aside > div > div > div.ant-card.ant-card-bordered.sidecard > div > div > div > div > div > div > div > div > table > tbody > tr.ant-table-row.ant-table-row-level-0 > td {
     text-align: center;
     text-transform: capitalize;
+}
+
+.ant-table-tbody > tr > td {
+    min-width: 71px;
 }

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import '../components.css';
 import { useSelector, useDispatch } from 'react-redux'
 import { addStep, editStep } from '../../states/stepsArrSlice'
-import { setCurrentData, setDataTypes } from '../../states/csvDataSlice';
+import { setCurrentData, setDataTypes, setLoading } from '../../states/csvDataSlice';
 import { setPython } from '../../states/cardModalSlice';
 import axios from 'axios';
 import { setEditData, resetEditData } from '../../states/editDataSlice';
@@ -30,6 +30,8 @@ function PythonCard(props) {
     };
   
     const handleOk = () => {
+      dispatch(setLoading(true))
+      dispatch(setPython(false));
         const dic = {
             'type':'python',
             'code': code,
@@ -40,13 +42,15 @@ function PythonCard(props) {
         console.log(res.data)
         dispatch(setCurrentData(res.data.data));
         dispatch(setDataTypes(res.data.datatypes));
+        dispatch(setLoading(false))
       })
-      dispatch(setPython(false));
       console.log('Modal Ok')
       setCode("")
     };
 
   const handleOkEdit = () => {
+    dispatch(setLoading(true))
+    dispatch(setPython(false));
     let newStepsArr = [...stepsArr]
     newStepsArr[oldDic.index] = oldDic
     console.log(newStepsArr)
@@ -56,7 +60,7 @@ function PythonCard(props) {
       dispatch(setDataTypes(res.data.datatypes));
       dispatch(resetEditData());
       dispatch(editStep(newStepsArr));
-      dispatch(setPython(false));
+      dispatch(setLoading(false))
     })
 
 
