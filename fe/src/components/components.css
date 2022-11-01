@@ -13,7 +13,7 @@
 
 .TransformCard {
     min-width:60px;
-    background-color: #94b8f2 !important;
+    background-color: #1890FF !important;
     border-radius: 10px !important;
 }
 
@@ -74,7 +74,7 @@
 }
 
 img {
-    width: 3vw;
+    width: 2.5vw;
 }
 
 .ant-card-body {
@@ -83,6 +83,7 @@ img {
 
 .cardTest {
     padding-top: 1.75vh;
+    font-size: 1vw;
 }
 
 .datatable th {
