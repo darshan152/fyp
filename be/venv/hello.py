@@ -60,15 +60,22 @@ def python_transformation():
     
 
 def python(dic,df):
-    exec("global final_df\n"+dic['code'])
+    global final_df
+    final_df = ""
     try:
-        if isinstance(final_df,pd.Series):
-            ans = final_df.to_frame()
-        else:
-            ans = final_df
+        exec("global final_df\n"+dic['code'])
     except:
-        print("Final df not found")
-        ans = pd.DataFrame()
+        ## Handle case when code not executable
+        print('Code not excecuted')
+
+    if isinstance(final_df,pd.Series):
+        ans = final_df.to_frame()
+    elif isinstance(final_df,pd.DataFrame):
+        ans = final_df
+    else:
+        ## Handle case when final_df is of diff type
+        ans = final_df
+
     return ans
 
 @app.route('/retransform', methods=['GET', 'POST'])
