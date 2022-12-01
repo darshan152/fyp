@@ -1,9 +1,16 @@
 from flask import Flask
 from flask_cors import CORS
 from flask import request
+from flask import Flask, Response
+from werkzeug.wsgi import wrap_file
 import pandas as pd
 from io import StringIO
+import pandavro as pdx
+from io import BytesIO
 import json
+from fastavro import writer, reader, parse_schema
+import base64
+
 
 
 app = Flask(__name__)
@@ -15,20 +22,29 @@ def hello_world():
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
-    if request.method == 'POST':
+    if request.method == 'POST' or request.method == 'GET':
         f = request.get_json()
-        df = read(f['data'],f['dic'])
+        df, fo = read(f['data'],f['dic'])
         # if df.shape[0] > 25:
         #     df = df.sample(n=25)
         dtype = extract_dtypes(df)
-    return {
-        'data':df.to_csv(index=False),
-        'datatypes':(dtype)
-    }
+        w = wrap_file(request.environ,fo)
+        fo.seek(0)
+        #encoded = base64.b64encode(fo.read())
+        resp = Response(w,mimetype="text/plain",direct_passthrough=True)
+        resp.headers['content-type'] = dtype
+        return resp
+        #resp# Response(json.dumps({'data': encoded, 'datatypes':dtype}),mimetype="text/plain")# Response(w,mimetype="text/plain",direct_passthrough=True)
+    # return {
+    #     'data':df.to_csv(index=False),
+    #     'datatypes':(dtype)
+    # }
 
 def read(data,dic):
     df = pd.read_csv(StringIO(data))
-    return df
+    fo = BytesIO()
+    pdx.to_avro(fo,df)
+    return df, fo
 
 def extract_dtypes(df):
     dtype = None

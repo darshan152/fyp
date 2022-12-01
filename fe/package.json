@@ -10,9 +10,15 @@
     "ace-builds": "^1.11.0",
     "antd": "^4.23.0",
     "array-move": "^4.0.0",
+    "assert": "^2.0.0",
+    "avro": "^0.1.0",
+    "avsc": "^5.7.7",
     "axios": "^0.27.2",
+    "browserify-zlib": "^0.2.0",
+    "buffer": "^6.0.3",
     "immutability-helper": "^3.1.1",
     "papaparse": "^5.3.2",
+    "path-browserify": "^1.0.1",
     "react": "^18.2.0",
     "react-ace": "^10.1.0",
     "react-dnd": "^16.0.1",
@@ -20,15 +26,20 @@
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.4",
     "react-scripts": "^5.0.1",
+    "readable-stream": "^4.2.0",
     "redux": "^4.2.0",
+    "stream-browserify": "^3.0.0",
+    "util": "^0.12.5",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
+    "eject": "react-scripts eject",
+    "avro": "browserify public/avro.js --s AVRO > public/build/avro.js"
   },
+  "cracoConfig": "craco.config.js",
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -46,5 +57,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@craco/craco": "^7.0.0",
+    "process": "^0.11.10"
   }
 }

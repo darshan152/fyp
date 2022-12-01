@@ -11,5 +11,16 @@ export default configureStore({
       csvData: csvDataReducer,
       cardModal: cardModalReducer,
       editData: editDataReducer,
-    }
+    },
+    middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        // Ignore these action types
+        ignoredActions: ['csvData/setCurrentData'],
+        // Ignore these field paths in all actions
+        // ignoredActionPaths: ['csvData.value.currentData'],
+        // Ignore these paths in the state
+        ignoredPaths: ['csvData.value.currentData'],
+      },
+    }),
   })

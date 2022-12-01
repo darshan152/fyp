@@ -3,11 +3,12 @@ import React, { useState } from 'react';
 import '../components.css';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux'
-import { setOriginalData, setFilename, setCurrentData, setDataTypes, setLoading } from '../../states/csvDataSlice';
+import { setOriginalData, setFilename, setCurrentData, setDataTypes, setLoading, setDataRows } from '../../states/csvDataSlice';
 import { editStep, rewriteSteps } from '../../states/stepsArrSlice'
 import { setRead } from '../../states/cardModalSlice';
 import ReadModal from '../modals/readmodal';
 import { resetEditData } from '../../states/editDataSlice';
+import avro from 'avsc';
 
 
 function ReadCard(props) {
@@ -99,11 +100,56 @@ function ReadCard(props) {
 
     function processCsv(result) {
       dispatch(setOriginalData(result))
-      axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, { data: result, dic:{} })
-        .then(res => {
-          dispatch(setCurrentData(res.data.data))
-          dispatch(setDataTypes(res.data.datatypes))
-          dispatch(setLoading(false))
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, { data: result, dic:{}},{
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        responseType: "arraybuffer"
+    })
+        .then((res) => {
+          console.log(res)
+          console.log(res.headers['content-type'])
+          console.log(new Uint8Array(res.data));
+          dispatch(setCurrentData(res.data))  
+          dispatch(setDataTypes(res.headers['content-type']))
+          const blob = new Blob([new Uint8Array(res.data)])  //arr in brackets !important
+          console.log(blob)
+          let metadata = null;
+          let rows = [];
+          avro
+            .createBlobDecoder(blob)
+                .on("metadata", type => {
+                    metadata = type;
+                })
+                .on("data", val => {            
+                    rows.push(val);
+                })
+                .on("end", () => {
+                    console.log(metadata);
+                    console.log(rows);
+                    const parsedRows = rows.map(function (row) {
+                      const jsonRow = JSON.parse(row.toString())
+                      let a = Object.keys(jsonRow).flatMap(function (field) {
+                        const value = Object.keys(jsonRow[field]).map(function (type) {
+                          let temp = {}
+                          temp[field] = jsonRow[field][type]
+                          return temp
+                        })
+                        return value
+                      })
+                      let temp2 = {}
+                        a.forEach(function (val) {
+                          Object.keys(val).forEach(function (key) {
+                            temp2[key] = val[key]
+                          })
+                        })
+                        console.log(temp2)
+                        return temp2
+                    })
+                    dispatch(setDataRows(parsedRows))     
+                    dispatch(setLoading(false))  
+                });
         });
     }
 

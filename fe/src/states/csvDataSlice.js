@@ -5,6 +5,7 @@ export const csvDataSlice = createSlice({
   initialState: {
     value: {
         currentData: "",
+        dataRows:"",
         originalData: "",
         filename: "",
         datatypes: "",
@@ -14,6 +15,9 @@ export const csvDataSlice = createSlice({
   reducers: {
     setCurrentData: (state, action) => {
       state.value.currentData = action.payload
+    },
+    setDataRows: (state, action) => {
+      state.value.dataRows = action.payload
     },
     setOriginalData: (state, action) => {
         state.value.originalData = action.payload
@@ -31,6 +35,6 @@ export const csvDataSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { setCurrentData, setFilename, setOriginalData, setDataTypes, setLoading } = csvDataSlice.actions
+export const { setCurrentData, setDataRows, setFilename, setOriginalData, setDataTypes, setLoading } = csvDataSlice.actions
 
 export default csvDataSlice.reducer

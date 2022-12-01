@@ -6,32 +6,48 @@ import Papa from "papaparse";
 
 
 function DataDisplay(props) {
-  const currentData = useSelector(state => state.csvData.value.currentData)
+  const dataRows = useSelector(state => state.csvData.value.dataRows)
   const datatypes = useSelector(state => state.csvData.value.datatypes)
   const loading = useSelector(state => state.csvData.value.loading)
 
-  let parsedData = ""
+  // let parsedData = ""
+  // let cols = ""
+  // if (currentData) {
+  //   parsedData = Papa.parse(currentData,
+  //     {
+  //       'header': true,
+  //     }
+  //   );
+  //   let json = {}
+  //   if (datatypes) {
+  //     json = datatypes
+  //   }
+  //   cols = parsedData.meta.fields.map(function (field, index) {
+  //     return {
+  //       title: field,
+  //       children: [{
+  //         title: json[field],
+  //         dataIndex: field,
+  //         key: field,
+  //       }],        
+  //     };
+  //   });     
+  // }
   let cols = ""
-  if (currentData) {
-    parsedData = Papa.parse(currentData,
-      {
-        'header': true,
-      }
-    );
-    let json = {}
-    if (datatypes) {
-      json = datatypes
-    }
-    cols = parsedData.meta.fields.map(function (field, index) {
+  
+  if (datatypes) {
+    const datatypesJson = JSON.parse(datatypes.replaceAll("'", '"'))
+    console.log(datatypesJson)
+    cols = Object.keys(datatypesJson).map(function (field, index) {
       return {
         title: field,
         children: [{
-          title: json[field],
+          title: datatypesJson[field],
           dataIndex: field,
           key: field,
         }],        
       };
-    });     
+  })
   }
   
 
@@ -39,7 +55,7 @@ function DataDisplay(props) {
         <div>
             <Table 
             className='datatable' 
-            dataSource={parsedData.data} 
+            dataSource={dataRows} 
             pagination={{ pageSize: 25 }}
             loading = {loading }
             scroll={{
