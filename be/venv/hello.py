@@ -17,6 +17,7 @@ def hello_world():
 def upload_file():
     if request.method == 'POST':
         f = request.get_json()
+        print(f)
         df = read(f['data'],f['dic'])
         # if df.shape[0] > 25:
         #     df = df.sample(n=25)
@@ -27,7 +28,30 @@ def upload_file():
     }
 
 def read(data,dic):
-    df = pd.read_csv(StringIO(data))
+    global df
+    if dic['readType'] == 'delimited':
+        df = pd.read_csv(StringIO(data),delimiter=dic['delimiter'])
+    elif dic['readType'] == 'json':
+        df = pd.read_json(StringIO(data))
+    elif dic['readType'] == 'xml':
+        df = pd.read_xml(data)
+    elif dic['readType'] == 'fix-width':
+        df = pd.read_fwf(StringIO(data))
+    elif dic['readType'] == 'custom':
+        data = StringIO(data)
+        try:
+            exec("global df\n"+dic['code'])
+        except:
+            ## Handle case when code not executable
+            print('Code not excecuted')
+
+        if isinstance(df,pd.Series):
+            df = df.to_frame()
+        elif isinstance(df,pd.DataFrame):
+            df = df
+        else:
+            ## Handle case when final_df is of diff type
+            df = df
     return df
 
 def extract_dtypes(df):

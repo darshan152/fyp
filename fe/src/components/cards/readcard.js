@@ -8,6 +8,7 @@ import { editStep, rewriteSteps } from '../../states/stepsArrSlice'
 import { setRead } from '../../states/cardModalSlice';
 import ReadModal from '../modals/readmodal';
 import { resetEditData } from '../../states/editDataSlice';
+import { setEditData } from '../../states/editDataSlice'
 
 
 function ReadCard(props) {
@@ -16,9 +17,28 @@ function ReadCard(props) {
     const filename = useSelector(state => state.csvData.value.filename)
     const isModalOpen = useSelector(state => state.cardModal.value.read)
     const stepsArr = useSelector(state => state.stepsArr.value)
+    const oldDic = useSelector(state => state.editData.value.dic)
     const originalData = useSelector(state => state.csvData.value.originalData)
     const isEdit = useSelector(state => state.editData.value.isEdit)
     const dispatch = useDispatch()
+
+    const [code, setCode] = useState("");
+    const [delimiter, setDelimiter] = useState(",");
+    const [tab, setTab] = useState("delimited");
+
+    const onTabChange = (e) => {
+      setTab(e)
+      dispatch(setFilename(""))
+      setSelectedFile(null);
+    };
+
+    const onTabChangeEdit = (e) => {
+      let newdic = {...oldDic}
+      newdic.readType=e
+      dispatch(setEditData(newdic))
+      dispatch(setFilename(""))
+      setSelectedFile(null);
+    };
 
     const showModal = () => {
       dispatch(setRead(true));
@@ -35,19 +55,47 @@ function ReadCard(props) {
         }
         const { result } = evt.target;
   
-        processCsv(result);
+        let tempStepsArr = [];
+        tempStepsArr.push(
+        {'type':'read',
+        'filename':filename, 
+        'fileType':filename.split('.').at(-1).toLowerCase(),
+        'readType':tab,
+        'delimiter':delimiter,
+        'code':code,
+        })
+        dispatch(rewriteSteps(tempStepsArr))
+        console.log(tempStepsArr)      
+        
+        console.log('Modal Ok')
+        processCsv(result,tempStepsArr[0]);
+
       };
       reader.readAsBinaryString(selectedFile);
   
-      let tempStepsArr = [];
-      tempStepsArr.push(
-      {'type':'read',
-      'filename':filename, 
-      })
-      dispatch(rewriteSteps(tempStepsArr))
-      console.log(tempStepsArr)      
       
-      console.log('Modal Ok')
+    };
+
+    const handleCodeChange = (e) => {
+      console.log(e)
+      setCode(e);
+    };
+
+    const handleCodeChangeEdit = (e) => {
+      let newdic = {...oldDic}
+      newdic.code=e
+      dispatch(setEditData(newdic))
+    };
+
+    const handleDelimiterChange = (e) => {
+      console.log(e.nativeEvent.data)
+      setDelimiter(e.nativeEvent.data);
+    };
+
+    const handleDelimiterChangeEdit = (e) => {
+      let newdic = {...oldDic}
+      newdic.delimiter=e.nativeEvent.data
+      dispatch(setEditData(newdic))
     };
 
     const handleOkEdit = () => {
@@ -62,9 +110,10 @@ function ReadCard(props) {
   
         dispatch(setOriginalData(result));
         let tempStepsArr = [...stepsArr]
-        tempStepsArr[0] = {'type':'read',
-        'filename':filename, 
-        }
+        let newDic = {...oldDic}
+        newDic.filename = filename
+        newDic.fileType = filename.split('.').at(-1).toLowerCase()
+        tempStepsArr[0] = newDic
         console.log(tempStepsArr)
         console.log('Modal Ok')
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/retransform`, {data:result,stepsArr:tempStepsArr})
@@ -92,14 +141,13 @@ function ReadCard(props) {
       }
       const file = e.target.files[0];
       const { name } = file;
-      // console.log(name)
       dispatch(setFilename(name))
       setSelectedFile(file);
     };
 
-    function processCsv(result) {
+    function processCsv(result, dic) {
       dispatch(setOriginalData(result))
-      axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, { data: result, dic:{} })
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, { data: result, dic:dic })
         .then(res => {
           dispatch(setCurrentData(res.data.data))
           dispatch(setDataTypes(res.data.datatypes))
@@ -121,8 +169,10 @@ function ReadCard(props) {
         </Card>
         </div>
         {!isEdit ?
-          <ReadModal isModalOpen={isModalOpen} handleOk={handleOk} handleCancel={handleCancel} handleFileUpload={handleFileUpload} />
-          :<ReadModal isModalOpen={isModalOpen} handleOk={handleOkEdit} handleCancel={handleCancel} handleFileUpload={handleFileUpload} />
+          <ReadModal isModalOpen={isModalOpen} handleOk={handleOk} handleCancel={handleCancel} handleFileUpload={handleFileUpload} handleCodeChange={handleCodeChange} handleDelimiterChange
+          ={handleDelimiterChange} code={code} delimiter={delimiter} onTabChange={onTabChange} defaultTab={'delimited'}/>
+          :<ReadModal isModalOpen={isModalOpen} handleOk={handleOkEdit} handleCancel={handleCancel} handleFileUpload={handleFileUpload} handleCodeChange={handleCodeChangeEdit} handleDelimiterChange
+          ={handleDelimiterChangeEdit} code={oldDic.code} delimiter={oldDic.delimiter} onTabChange={onTabChangeEdit} defaultTab={oldDic.readType} />
         }
         </div>
     );
