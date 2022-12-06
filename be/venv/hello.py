@@ -4,6 +4,7 @@ from flask import request
 import pandas as pd
 from io import StringIO
 import json
+import werkzeug
 
 
 app = Flask(__name__)
@@ -15,9 +16,10 @@ def hello_world():
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
+    # raise CustomCodeError('meow')
     if request.method == 'POST':
         f = request.get_json()
-        print(f)
+        # print(f)
         df = read(f['data'],f['dic'])
         # if df.shape[0] > 25:
         #     df = df.sample(n=25)
@@ -29,14 +31,27 @@ def upload_file():
 
 def read(data,dic):
     global df
+    df = ""
     if dic['readType'] == 'delimited':
-        df = pd.read_csv(StringIO(data),delimiter=dic['delimiter'])
+        try: 
+            df = pd.read_csv(StringIO(data),delimiter=dic['delimiter'])
+        except:
+            raise ReadError('Error parsing delimited file. Please check the file and delimiter.')
     elif dic['readType'] == 'json':
-        df = pd.read_json(StringIO(data))
+        try:
+            df = pd.read_json(StringIO(data))
+        except:
+            raise ReadError('Error parsing json file. Please check the file.')
     elif dic['readType'] == 'xml':
-        df = pd.read_xml(data)
+        try:
+            df = pd.read_xml(data)
+        except:
+            raise ReadError('Error parsing xml file. Please check the file.')
     elif dic['readType'] == 'fix-width':
-        df = pd.read_fwf(StringIO(data))
+        try:
+            df = pd.read_fwf(StringIO(data))
+        except:
+            raise ReadError('Error parsing fix-width file. Please check the file.')
     elif dic['readType'] == 'custom':
         data = StringIO(data)
         try:
@@ -44,14 +59,17 @@ def read(data,dic):
         except:
             ## Handle case when code not executable
             print('Code not excecuted')
+            raise CustomCodeError('Code failed to be executed.')
 
         if isinstance(df,pd.Series):
-            df = df.to_frame()
+                df = df.to_frame()
         elif isinstance(df,pd.DataFrame):
             df = df
         else:
             ## Handle case when final_df is of diff type
-            df = df
+            if final_df == "":
+                raise CustomCodeError('Please return the dataframe in the variable `df`.')
+            raise CustomCodeError('`df` is not of type DataFrame.')
     return df
 
 def extract_dtypes(df):
@@ -91,6 +109,8 @@ def python(dic,df):
     except:
         ## Handle case when code not executable
         print('Code not excecuted')
+        raise CustomCodeError('Code failed to be executed.')
+    
 
     if isinstance(final_df,pd.Series):
         ans = final_df.to_frame()
@@ -98,7 +118,9 @@ def python(dic,df):
         ans = final_df
     else:
         ## Handle case when final_df is of diff type
-        ans = final_df
+        if final_df == "":
+            raise CustomCodeError('Please return the dataframe in the variable `final_df`.')
+        raise CustomCodeError('`final_df` is not of type DataFrame.')
 
     return ans
 
@@ -118,3 +140,26 @@ def retransformation():
         'data':df.to_csv(index=False),
         'datatypes':(dtype),
     }
+
+
+class CustomCodeError(werkzeug.exceptions.HTTPException):
+    code = 512
+
+    def __init__(self, message):
+        super().__init__()
+        self.message = message
+
+@app.errorhandler(CustomCodeError)
+def handle_512(e):
+    return e.message, e.code
+
+class ReadError(werkzeug.exceptions.HTTPException):
+    code = 513
+
+    def __init__(self, message):
+        super().__init__()
+        self.message = message
+
+@app.errorhandler(ReadError)
+def handle_512(e):
+    return e.message, e.code

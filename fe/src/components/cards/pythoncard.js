@@ -22,6 +22,7 @@ function PythonCard(props) {
   const dispatch = useDispatch()
 
   const [code, setCode] = useState("");
+  const [error, setError] = useState("");
 
 
     const showModal = () => {
@@ -31,26 +32,29 @@ function PythonCard(props) {
   
     const handleOk = () => {
       dispatch(setLoading(true))
-      dispatch(setPython(false));
         const dic = {
             'type':'python',
             'code': code,
         }
-      dispatch(addStep(dic));
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/python`, {data:currentData,datatypes:datatypes,dic:dic})
       .then(res => {
         console.log(res.data)
+        dispatch(addStep(dic));
         dispatch(setCurrentData(res.data.data));
         dispatch(setDataTypes(res.data.datatypes));
         dispatch(setLoading(false))
+        dispatch(setPython(false));
+        setCode("")
+      }).catch(error => {
+        setError(error.response.data)
+        dispatch(setLoading(false))
       })
       console.log('Modal Ok')
-      setCode("")
+      
     };
 
   const handleOkEdit = () => {
     dispatch(setLoading(true))
-    dispatch(setPython(false));
     let newStepsArr = [...stepsArr]
     newStepsArr[oldDic.index] = oldDic
     console.log(newStepsArr)
@@ -61,6 +65,10 @@ function PythonCard(props) {
       dispatch(resetEditData());
       dispatch(editStep(newStepsArr));
       dispatch(setLoading(false))
+      dispatch(setPython(false));
+    }).catch(error => {
+      setError(error.response.data)
+      dispatch(setLoading(false))
     })
 
 
@@ -70,6 +78,7 @@ function PythonCard(props) {
       dispatch(setPython(false));
       console.log('Modal Cancel')
       setCode("")
+      setError('')
       dispatch(resetEditData())
     };
 
@@ -97,9 +106,9 @@ function PythonCard(props) {
         </Card>
         </div>
         { !isEdit ? 
-        <PythonModal isModalOpen={isModalOpen} handleCancel={handleCancel} handleChange={handleChange} handleOk={handleOk} code={code}/>
+        <PythonModal isModalOpen={isModalOpen} handleCancel={handleCancel} handleChange={handleChange} handleOk={handleOk} code={code} error={error}/>
         : 
-        <PythonModal isModalOpen={isModalOpen} handleCancel={handleCancel} handleChange={handleChangeEdit} handleOk={handleOkEdit} code={oldDic.code}/>
+        <PythonModal isModalOpen={isModalOpen} handleCancel={handleCancel} handleChange={handleChangeEdit} handleOk={handleOkEdit} code={oldDic.code} error={error}/>
         }
         
         </div>

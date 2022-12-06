@@ -1,8 +1,7 @@
-import { Modal, Tabs, Input } from 'antd';
+import { Modal, Tabs, Input, Alert } from 'antd';
 import { React, useState } from 'react';
 import '../components.css';
 import AceEditor from "react-ace";
-import {useRef} from 'react';
 
 
 function ReadModal(props) {
@@ -19,6 +18,7 @@ function ReadModal(props) {
           {/* <Upload {...prop}>
             <Button>Click to Upload</Button>
           </Upload> */}
+          {props.error==='' ? null : <Alert message={props.error} type="error" />}
           <Tabs defaultActiveKey={props.defaultTab} onChange={onTabChange}>
             <Tabs.TabPane tab="Delimited" key="delimited">
               <input key={theInputKey || '' } type="file" accept=".csv"  onChange={props.handleFileUpload} /><br/><br/>
