@@ -7,6 +7,8 @@ import AceEditor from "react-ace";
 function ReadModal(props) {
   const [theInputKey, setTheInputKey] = useState("");
 
+  console.log(props.defaultTab)
+
   const onTabChange = (e) => {
     props.onTabChange(e)
     setTheInputKey(Math.random().toString(36))
@@ -19,7 +21,7 @@ function ReadModal(props) {
             <Button>Click to Upload</Button>
           </Upload> */}
           {props.error==='' ? null : <Alert message={props.error} type="error" />}
-          <Tabs defaultActiveKey={props.defaultTab} onChange={onTabChange}>
+          <Tabs activeKey={props.defaultTab} onChange={onTabChange}>
             <Tabs.TabPane tab="Delimited" key="delimited">
               <input key={theInputKey || '' } type="file" accept=".csv"  onChange={props.handleFileUpload} /><br/><br/>
               <label>Delimiter: </label>

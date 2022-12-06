@@ -19,6 +19,7 @@ import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 function HistoryCard(props) {
     const stepsArr = useSelector(state => state.stepsArr.value)
     const originalData = useSelector(state => state.csvData.value.originalData)
+    const isLoading = useSelector(state => state.csvData.value.loading)
     console.log(stepsArr)
     const dispatch = useDispatch()
 
@@ -94,6 +95,7 @@ function HistoryCard(props) {
     ];
 
     const handleEdit = (step,index) => {
+      if (!isLoading) {
         console.log(step)
         if (step['type'] === 'python') {
             dispatch(setPython(true));
@@ -106,10 +108,11 @@ function HistoryCard(props) {
             index:index
         }
         dispatch(setEditData(newStep))
-
+      }
     }
 
     const handleDelete = (index) => {
+      if (!isLoading) {
         dispatch(setLoading(true))
         let newSteps = [...stepsArr]
         newSteps = newSteps.slice(0,index).concat(newSteps.slice(index+1,newSteps.length))
@@ -120,6 +123,7 @@ function HistoryCard(props) {
             dispatch(editStep(newSteps));
             dispatch(setLoading(false))
         })
+      }
     }
 
 

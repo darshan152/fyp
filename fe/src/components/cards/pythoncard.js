@@ -19,6 +19,7 @@ function PythonCard(props) {
   const isEdit = useSelector(state => state.editData.value.isEdit)
   const stepsArr = useSelector(state => state.stepsArr.value)
   const datatypes = useSelector(state => state.csvData.value.datatypes)
+  const isLoading = useSelector(state => state.csvData.value.loading)
   const dispatch = useDispatch()
 
   const [code, setCode] = useState("");
@@ -26,8 +27,10 @@ function PythonCard(props) {
 
 
     const showModal = () => {
-      dispatch(setPython(true));
-      console.log('Opening Modal')
+      if (!isLoading) {
+        dispatch(setPython(true));
+        console.log('Opening Modal')
+      }
     };
   
     const handleOk = () => {

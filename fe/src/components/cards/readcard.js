@@ -20,6 +20,7 @@ function ReadCard(props) {
     const oldDic = useSelector(state => state.editData.value.dic)
     // const originalData = useSelector(state => state.csvData.value.originalData)
     const isEdit = useSelector(state => state.editData.value.isEdit)
+    const isLoading = useSelector(state => state.csvData.value.loading)
     const dispatch = useDispatch()
 
     const [code, setCode] = useState("");
@@ -35,26 +36,60 @@ function ReadCard(props) {
     };
 
     const onTabChangeEdit = (e) => {
+      console.log(oldDic)
       let newdic = {...oldDic}
       newdic.readType=e
       dispatch(setEditData(newdic))
       dispatch(setFilename(""))
       setSelectedFile(null);
+      // setTimeout(()=>{console.log(oldDic)},2000)
+      console.log(newdic)
     };
 
     const showModal = () => {
-      dispatch(setRead(true));
-      console.log('Opening Modal')
+      if (!isLoading) {
+        dispatch(setRead(true));
+        console.log('Opening Modal')
+      }      
     };
+
+    const sampleData = (result) => {
+      const rows = result.split('\n')
+      const headerRow =  [rows[0]]
+      const min = 1
+      const max = rows.length
+      const times = 1000
+      if (max > 50000) {
+        var ranArr = [];
+
+        for (var i=min;i<=times;i++) {
+          ranArr.push(i);
+        }
+        console.log(ranArr)
+        for (let i = ranArr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [ranArr[i], ranArr[j]] = [ranArr[j], ranArr[i]];
+        }
+        console.log(ranArr)
+        const sampledRows = ranArr.map(idx=>rows[idx])
+        console.log(sampledRows)
+        return headerRow.concat(sampledRows).join('\n')
+      }
+      return result
+    }
   
     const handleOk = () => {
+      let now = Date.now()
       dispatch(setLoading(true))
+      dispatch(setRead(false))
       const reader = new FileReader();
       reader.onload = (evt) => {
         if (!evt?.target?.result) {
           return;
         }
-        const { result } = evt.target;
+        var { result } = evt.target;
+        // result = sampleData(result)
+        // console.log(result);
   
         let tempStepsArr = [];
         tempStepsArr.push(
@@ -68,18 +103,19 @@ function ReadCard(props) {
         console.log(tempStepsArr)      
         
         console.log('Modal Ok')
-        dispatch(setOriginalData(result))
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, { data: result, dic:tempStepsArr[0] })
           .then(res => {
             dispatch(rewriteSteps(tempStepsArr))
             dispatch(setOriginalData(result));
-            dispatch(setRead(false));
+            // dispatch(setRead(false));
             dispatch(setCurrentData(res.data.data))
             dispatch(setDataTypes(res.data.datatypes))
             dispatch(setLoading(false))
             setError('')
+            console.log((Date.now()-now)/1000)
           })
           .catch((error)=> {
+            dispatch(setRead(true));
             setError(error.response.data)
             dispatch(setLoading(false))
           });
@@ -88,6 +124,8 @@ function ReadCard(props) {
       try {
         reader.readAsBinaryString(selectedFile);
       } catch {
+        setTimeout(null,1000)
+        dispatch(setRead(true));
         setError('Please upload a file.')
         dispatch(setLoading(false))
       }
@@ -119,6 +157,7 @@ function ReadCard(props) {
 
     const handleOkEdit = () => {
       dispatch(setLoading(true))
+      dispatch(setRead(false));
       const reader = new FileReader();
       reader.onload = (evt) => {
         if (!evt?.target?.result) {
@@ -141,10 +180,11 @@ function ReadCard(props) {
           dispatch(setDataTypes(res.data.datatypes));
           dispatch(resetEditData());
           dispatch(editStep(tempStepsArr));
-          dispatch(setRead(false));
+          // dispatch(setRead(false));
           dispatch(setLoading(false))
           setError('')
         }).catch((error)=> {
+          dispatch(setRead(true));
           setError(error.response.data)
           dispatch(setLoading(false))
         });
@@ -153,6 +193,7 @@ function ReadCard(props) {
       try {
         reader.readAsBinaryString(selectedFile);
       } catch {
+        dispatch(setRead(true));
         setError('Please upload a file.')
         dispatch(setLoading(false))
       }
@@ -161,6 +202,7 @@ function ReadCard(props) {
   
     const handleCancel = () => {
       dispatch(setRead(false));
+      dispatch(resetEditData());
       setError('')
       console.log('Modal Cancel')
       //dispatch(setLoading(false))
@@ -171,6 +213,7 @@ function ReadCard(props) {
         return;
       }
       const file = e.target.files[0];
+      console.log(file)
       const { name } = file;
       dispatch(setFilename(name))
       setSelectedFile(file);
@@ -191,7 +234,7 @@ function ReadCard(props) {
         </div>
         {!isEdit ?
           <ReadModal isModalOpen={isModalOpen} handleOk={handleOk} handleCancel={handleCancel} handleFileUpload={handleFileUpload} handleCodeChange={handleCodeChange} handleDelimiterChange
-          ={handleDelimiterChange} code={code} delimiter={delimiter} onTabChange={onTabChange} defaultTab={'delimited'} error={error}/>
+          ={handleDelimiterChange} code={code} delimiter={delimiter} onTabChange={onTabChange} defaultTab={tab} error={error}/>
           :<ReadModal isModalOpen={isModalOpen} handleOk={handleOkEdit} handleCancel={handleCancel} handleFileUpload={handleFileUpload} handleCodeChange={handleCodeChangeEdit} handleDelimiterChange
           ={handleDelimiterChangeEdit} code={oldDic.code} delimiter={oldDic.delimiter} onTabChange={onTabChangeEdit} defaultTab={oldDic.readType} error={error} />
         }

@@ -21,8 +21,8 @@ def upload_file():
         f = request.get_json()
         # print(f)
         df = read(f['data'],f['dic'])
-        # if df.shape[0] > 25:
-        #     df = df.sample(n=25)
+        if df.shape[0] > 100000:
+            df = df.sample(n=100000)
         dtype = extract_dtypes(df)
     return {
         'data':df.to_csv(index=False),
@@ -35,28 +35,33 @@ def read(data,dic):
     if dic['readType'] == 'delimited':
         try: 
             df = pd.read_csv(StringIO(data),delimiter=dic['delimiter'])
-        except:
+        except Exception as e:
+            print(e)
             raise ReadError('Error parsing delimited file. Please check the file and delimiter.')
     elif dic['readType'] == 'json':
         try:
             df = pd.read_json(StringIO(data))
-        except:
+        except Exception as e:
+            print(e)
             raise ReadError('Error parsing json file. Please check the file.')
     elif dic['readType'] == 'xml':
         try:
             df = pd.read_xml(data)
-        except:
+        except Exception as e:
+            print(e)
             raise ReadError('Error parsing xml file. Please check the file.')
     elif dic['readType'] == 'fix-width':
         try:
             df = pd.read_fwf(StringIO(data))
-        except:
+        except Exception as e:
+            print(e)
             raise ReadError('Error parsing fix-width file. Please check the file.')
     elif dic['readType'] == 'custom':
         data = StringIO(data)
         try:
             exec("global df\n"+dic['code'])
-        except:
+        except Exception as e:
+            print(e)
             ## Handle case when code not executable
             print('Code not excecuted')
             raise CustomCodeError('Code failed to be executed.')
@@ -67,7 +72,7 @@ def read(data,dic):
             df = df
         else:
             ## Handle case when final_df is of diff type
-            if final_df == "":
+            if df == "":
                 raise CustomCodeError('Please return the dataframe in the variable `df`.')
             raise CustomCodeError('`df` is not of type DataFrame.')
     return df
@@ -161,5 +166,5 @@ class ReadError(werkzeug.exceptions.HTTPException):
         self.message = message
 
 @app.errorhandler(ReadError)
-def handle_512(e):
+def handle_513(e):
     return e.message, e.code
