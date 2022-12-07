@@ -4,7 +4,7 @@ export const cardModalSlice = createSlice({
   name: 'cardModal',
   initialState: {
     value: {
-        read: false,
+        read: true,
         python: false,
     }
   },

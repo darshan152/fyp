@@ -1,11 +1,17 @@
 import { Modal, Tabs, Input, Alert } from 'antd';
+import { useSelector } from 'react-redux'
+
 import { React, useState } from 'react';
 import '../components.css';
 import AceEditor from "react-ace";
 
 
+
 function ReadModal(props) {
   const [theInputKey, setTheInputKey] = useState("");
+  const stepsArr = useSelector(state => state.stepsArr.value)
+  const hasRead = stepsArr.length !== 0 && stepsArr[0].type === 'read'
+
 
   console.log(props.defaultTab)
 
@@ -16,7 +22,7 @@ function ReadModal(props) {
   };
 
     return (
-        <Modal title="Read Data" open={props.isModalOpen} onOk={props.handleOk} onCancel={props.handleCancel}>
+        <Modal title="Read Data" open={props.isModalOpen} onOk={props.handleOk} onCancel={props.handleCancel} cancelButtonProps={{disabled:!hasRead}} closable={hasRead}>
           {/* <Upload {...prop}>
             <Button>Click to Upload</Button>
           </Upload> */}

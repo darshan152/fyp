@@ -209,11 +209,13 @@ function ReadCard(props) {
     };
   
     const handleCancel = () => {
-      dispatch(setRead(false));
-      dispatch(resetEditData());
-      setError('')
-      console.log('Modal Cancel')
-      //dispatch(setLoading(false))
+      if (stepsArr.length !== 0 && stepsArr[0].type === 'read') {
+        dispatch(setRead(false));
+        dispatch(resetEditData());
+        setError('')
+        console.log('Modal Cancel')
+        //dispatch(setLoading(false))
+      }
     };
 
     const handleFileUpload = (e) => {
