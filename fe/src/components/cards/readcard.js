@@ -174,7 +174,6 @@ function ReadCard(props) {
     };
 
     const handleCodeChange = (e) => {
-      console.log(e)
       setCode(e);
     };
 
@@ -185,7 +184,6 @@ function ReadCard(props) {
     };
 
     const handleDelimiterChange = (e) => {
-      console.log(e.nativeEvent.data)
       setDelimiter(e.nativeEvent.data);
     };
 

@@ -18,7 +18,6 @@ function ReadModal(props) {
   const onTabChange = (e) => {
     props.onTabChange(e)
     setTheInputKey(Math.random().toString(36))
-    console.log('hi')
   };
 
     return (
@@ -27,8 +26,57 @@ function ReadModal(props) {
             <Button>Click to Upload</Button>
           </Upload> */}
           {props.error==='' ? null : <Alert message={props.error} type="error" />}
-          <Tabs activeKey={props.defaultTab} onChange={onTabChange}>
-            <Tabs.TabPane tab="Delimited" key="delimited">
+          <Tabs activeKey={props.defaultTab} onChange={onTabChange}
+          items= {[
+            {
+              label: 'Delimited',
+              key: 'delimited',
+              children: <div><input key={theInputKey || '' } type="file" accept=".csv"  onChange={props.handleFileUpload} /><br/><br/>
+              <label>Delimiter: </label>
+              <Input value={props.delimiter} onChange={props.handleDelimiterChange}/></div>,
+            },
+            {
+              label: 'XML',
+              key: 'xml',
+              children: <div><input key={theInputKey || '' } type="file" accept=".xml"  onChange={props.handleFileUpload} /></div>,
+            },
+            {
+              label: 'JSON',
+              key: 'json',
+              children: <div><input key={theInputKey || '' } type="file" accept=".json"  onChange={props.handleFileUpload} /></div>,
+            },
+            {
+              label: 'Fix-width',
+              key: 'fix-width',
+              children: <div><input key={theInputKey || '' } type="file" accept="*"  onChange={props.handleFileUpload} /></div>,
+            },
+            {
+              label: 'Custom',
+              key: 'custom',
+              children: <div><input key={theInputKey || '' } type="file" accept="*"  onChange={props.handleFileUpload} /><br/><br/>
+              <p>Uploaded file is accesible as a StringIO object in `data`. Final dataframe needs to be loaded to the variable `df`.</p>
+              <AceEditor
+                disable
+                placeholder=""
+                mode="python"
+                theme="xcode"
+                name="blah2"
+                onChange={props.handleCodeChange}
+                fontSize={14}
+                showPrintMargin={false}
+                showGutter={true}
+                highlightActiveLine={true}
+                value={props.code}
+                setOptions={{
+                enableBasicAutocompletion: false,
+                enableLiveAutocompletion: true,
+                enableSnippets: false,
+                showLineNumbers: true,
+                tabSize: 2,
+                }}/></div>,
+            },
+          ]}>
+            {/* <Tabs.TabPane tab="Delimited" key="delimited">
               <input key={theInputKey || '' } type="file" accept=".csv"  onChange={props.handleFileUpload} /><br/><br/>
               <label>Delimiter: </label>
               <Input value={props.delimiter} onChange={props.handleDelimiterChange}/>
@@ -64,7 +112,7 @@ function ReadModal(props) {
                 showLineNumbers: true,
                 tabSize: 2,
                 }}/>
-            </Tabs.TabPane>
+            </Tabs.TabPane> */}
           </Tabs>
 
           
