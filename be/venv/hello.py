@@ -21,6 +21,7 @@ def upload_file():
         f = request.get_json()
         # print(f)
         df = read(f['data'],f['dic'])
+        print(df.shape)
         if df.shape[0] > 100000:
             df = df.sample(n=100000)
         dtype = extract_dtypes(df)

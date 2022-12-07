@@ -9,6 +9,7 @@ import { setRead } from '../../states/cardModalSlice';
 import ReadModal from '../modals/readmodal';
 import { resetEditData } from '../../states/editDataSlice';
 import { setEditData } from '../../states/editDataSlice'
+import Papa from "papaparse";
 
 
 function ReadCard(props) {
@@ -54,26 +55,31 @@ function ReadCard(props) {
     };
 
     const sampleData = (result) => {
-      const rows = result.split('\n')
+      const rows = Papa.parse(result).data
+      if (rows.at(-1).length === 1 && rows.at(-1)[0] === '') {
+        rows.pop()
+      }
       const headerRow =  [rows[0]]
       const min = 1
-      const max = rows.length
-      const times = 1000
-      if (max > 50000) {
+      const max = rows.length - 1
+      // console.log(rows)
+      const times = 100000
+      if (max > times) {
         var ranArr = [];
 
-        for (var i=min;i<=times;i++) {
+        for (var i=min;i<=max;i++) {
           ranArr.push(i);
         }
-        console.log(ranArr)
+        
         for (let i = ranArr.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [ranArr[i], ranArr[j]] = [ranArr[j], ranArr[i]];
         }
-        console.log(ranArr)
+        ranArr = ranArr.slice(0,times)
+        // console.log(ranArr)
         const sampledRows = ranArr.map(idx=>rows[idx])
-        console.log(sampledRows)
-        return headerRow.concat(sampledRows).join('\n')
+        // console.log(sampledRows)
+        return Papa.unparse(headerRow.concat(sampledRows))
       }
       return result
     }
@@ -88,7 +94,9 @@ function ReadCard(props) {
           return;
         }
         var { result } = evt.target;
-        // result = sampleData(result)
+        if (tab === 'delimited'){
+          result = sampleData(result)
+        }
         // console.log(result);
   
         let tempStepsArr = [];
