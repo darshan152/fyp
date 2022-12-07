@@ -54,8 +54,8 @@ function ReadCard(props) {
       }      
     };
 
-    const sampleData = (result) => {
-      const rows = Papa.parse(result).data
+    const sampleCSVData = (result) => {
+      const rows = Papa.parse(result,{delimiter:delimiter}).data
       if (rows.at(-1).length === 1 && rows.at(-1)[0] === '') {
         rows.pop()
       }
@@ -83,6 +83,36 @@ function ReadCard(props) {
       }
       return result
     }
+
+    const sampleFwData = (result) => {
+      const rows = result.split('\n')
+      if (rows.at(-1).length === 1 && rows.at(-1)[0] === '') {
+        rows.pop()
+      }
+      const headerRow =  [rows[0]]
+      const min = 1
+      const max = rows.length - 1
+      console.log(rows)
+      const times = 5
+      if (max > times) {
+        var ranArr = [];
+
+        for (var i=min;i<=max;i++) {
+          ranArr.push(i);
+        }
+        
+        for (let i = ranArr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [ranArr[i], ranArr[j]] = [ranArr[j], ranArr[i]];
+        }
+        ranArr = ranArr.slice(0,times)
+        console.log(ranArr)
+        const sampledRows = ranArr.map(idx=>rows[idx])
+        console.log(sampledRows)
+        return headerRow.concat(sampledRows).join('\n')
+      }
+      return result
+    }
   
     const handleOk = () => {
       let now = Date.now()
@@ -95,9 +125,11 @@ function ReadCard(props) {
         }
         var { result } = evt.target;
         if (tab === 'delimited'){
-          result = sampleData(result)
+          result = sampleCSVData(result)
+        } else if (tab === 'fix-width'){
+          result = sampleFwData(result)
         }
-        // console.log(result);
+        console.log(result);
   
         let tempStepsArr = [];
         tempStepsArr.push(
