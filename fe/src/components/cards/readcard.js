@@ -92,7 +92,7 @@ function ReadCard(props) {
       const headerRow =  [rows[0]]
       const min = 1
       const max = rows.length - 1
-      console.log(rows)
+      // console.log(rows)
       const times = 5
       if (max > times) {
         var ranArr = [];
@@ -106,9 +106,9 @@ function ReadCard(props) {
           [ranArr[i], ranArr[j]] = [ranArr[j], ranArr[i]];
         }
         ranArr = ranArr.slice(0,times)
-        console.log(ranArr)
+        // console.log(ranArr)
         const sampledRows = ranArr.map(idx=>rows[idx])
-        console.log(sampledRows)
+        // console.log(sampledRows)
         return headerRow.concat(sampledRows).join('\n')
       }
       return result
@@ -129,7 +129,7 @@ function ReadCard(props) {
         } else if (tab === 'fix-width'){
           result = sampleFwData(result)
         }
-        console.log(result);
+        // console.log(result);
   
         let tempStepsArr = [];
         tempStepsArr.push(
@@ -203,7 +203,12 @@ function ReadCard(props) {
         if (!evt?.target?.result) {
           return;
         }
-        const { result } = evt.target;
+        var { result } = evt.target;
+        if (tab === 'delimited'){
+          result = sampleCSVData(result)
+        } else if (tab === 'fix-width'){
+          result = sampleFwData(result)
+        }
   
         
         let tempStepsArr = [...stepsArr]
