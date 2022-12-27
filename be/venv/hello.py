@@ -5,6 +5,9 @@ import pandas as pd
 from io import StringIO
 import json
 import werkzeug
+from sqlalchemy import create_engine
+import pandas as pd
+from sqlalchemy.engine import URL
 
 
 app = Flask(__name__)
@@ -76,6 +79,26 @@ def read(data,dic):
             if df == "":
                 raise CustomCodeError('Please return the dataframe in the variable `df`.')
             raise CustomCodeError('`df` is not of type DataFrame.')
+    elif dic['readType'] == 'database':
+        print(dic)
+        url_object = URL.create(
+            dic['dbtype'],
+            username=dic["user"],
+            password=dic["password"],  # plain (unescaped) text
+            host=dic["host"],
+            database=dic["dbname"],
+        )
+        engine = create_engine(url_object)
+        try:
+            cnxn = engine.connect()
+        except Exception as e:
+            print(e.args)
+            raise CustomCodeError('Connection to Database Failed.')
+        try:
+            df = pd.read_sql_query (dic["sql"], cnxn)
+        except Exception as e:
+            raise CustomCodeError('Error in SQL code.')
+
     return df
 
 def extract_dtypes(df):

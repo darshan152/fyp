@@ -33,7 +33,7 @@ function ReadModal(props) {
               key: 'delimited',
               children: <div><input key={theInputKey || '' } type="file" accept=".csv"  onChange={props.handleFileUpload} /><br/><br/>
               <label>Delimiter: </label>
-              <Input value={props.delimiter} onChange={props.handleDelimiterChange}/></div>,
+              <Input value={props.dic.delimiter} onChange={props.onChange('delimiter')}/></div>,
             },
             {
               label: 'XML',
@@ -61,12 +61,12 @@ function ReadModal(props) {
                 mode="python"
                 theme="xcode"
                 name="blah2"
-                onChange={props.handleCodeChange}
+                onChange={props.onChange('code')}
                 fontSize={14}
                 showPrintMargin={false}
                 showGutter={true}
                 highlightActiveLine={true}
-                value={props.code}
+                value={props.dic.code}
                 setOptions={{
                 enableBasicAutocompletion: false,
                 enableLiveAutocompletion: true,
@@ -74,6 +74,28 @@ function ReadModal(props) {
                 showLineNumbers: true,
                 tabSize: 2,
                 }}/></div>,
+            },
+            {
+              label: 'Database',
+              key: 'database',
+              children: <div>
+                <select value={props.dic.dbtype} onChange={props.onChange('dbtype')} name="databases" id="databases">
+                  <option value="postgresql">PostgreSQL</option>
+                  <option value="-">Nothing</option>
+                </select> <br/>
+                <label>Host: </label>
+                <Input type='text' value={props.dic.host} onChange={props.onChange('host')}/><br/>
+                <label>Port: </label>
+                <Input type='text' value={props.dic.port} onChange={props.onChange('port')}/><br/>
+                <label>User: </label>
+                <Input type='text' value={props.dic.user} onChange={props.onChange('user')}/><br/>
+                <label>Password: </label>
+                <Input type='password' value={props.dic.password} onChange={props.onChange('password')}/><br/>
+                <label>Database Name: </label>
+                <Input type='text' value={props.dic.dbname} onChange={props.onChange('dbname')}/><br/>
+                <label>SQL Query: </label>
+                <Input type='text' value={props.dic.sql} onChange={props.onChange('sql')}/><br/>
+              </div>,
             },
           ]}>
             {/* <Tabs.TabPane tab="Delimited" key="delimited">

@@ -3,3 +3,4 @@ Gunicorn
 flask-cors
 pandas
 lxml
+sqlalchemy==1.4.45

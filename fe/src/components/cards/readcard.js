@@ -24,10 +24,39 @@ function ReadCard(props) {
     const isLoading = useSelector(state => state.csvData.value.loading)
     const dispatch = useDispatch()
 
-    const [code, setCode] = useState("");
-    const [delimiter, setDelimiter] = useState(",");
+    const EMPTYDIC = {delimiter:',',code:'', dbtype:'postgresql'}
+
     const [tab, setTab] = useState("delimited");
     const [error, setError] = useState("");
+    const [dic, setDic] = useState(EMPTYDIC);
+
+    const onChange = (item) => {
+      const onChangeItem = (e) => {
+        // console.log(e.target.value)
+        if (typeof e === 'object') {
+          e = e.target.value
+        }
+        let newDic = {...dic}
+        newDic[item] = e
+        setDic(newDic)
+        console.log(newDic)
+      }
+      return onChangeItem
+    }
+
+    const onChangeEdit = (item) => {
+      const onChangeItem = (e) => {
+        // console.log(e.target.value)
+        if (typeof e === 'object') {
+          e = e.target.value
+        }
+        let newDic = {...oldDic}
+        newDic[item] = e
+        dispatch(setEditData(newDic))
+        console.log(newDic)
+      }
+      return onChangeItem
+    }
 
     const onTabChange = (e) => {
       setTab(e)
@@ -55,7 +84,7 @@ function ReadCard(props) {
     };
 
     const sampleCSVData = (result) => {
-      const rows = Papa.parse(result,{delimiter:delimiter}).data
+      const rows = Papa.parse(result,{delimiter:dic.delimiter}).data
       if (rows.at(-1).length === 1 && rows.at(-1)[0] === '') {
         rows.pop()
       }
@@ -132,14 +161,11 @@ function ReadCard(props) {
         // console.log(result);
   
         let tempStepsArr = [];
-        tempStepsArr.push(
-        {'type':'read',
-        'filename':filename, 
-        // 'fileType':filename.split('.').at(-1).toLowerCase(),
-        'readType':tab,
-        'delimiter':delimiter,
-        'code':code,
-        })
+        let stepDic = {...dic}
+        stepDic.type = 'read'
+        stepDic.filename = filename
+        stepDic.readType = tab
+        tempStepsArr.push(stepDic)
         console.log(tempStepsArr)      
         
         console.log('Modal Ok')
@@ -161,36 +187,47 @@ function ReadCard(props) {
           });
 
       };
-      try {
-        reader.readAsBinaryString(selectedFile);
-      } catch {
-        setTimeout(null,1000)
-        dispatch(setRead(true));
-        setError('Please upload a file.')
-        dispatch(setLoading(false))
+      if (tab !== 'database') {
+        try {
+          reader.readAsBinaryString(selectedFile);
+        } catch {
+          setTimeout(null,1000)
+          dispatch(setRead(true));
+          setError('Please upload a file.')
+          dispatch(setLoading(false))
+        }
+      } else {
+        dispatch(setLoading(true))
+        dispatch(setRead(false))
+        let tempStepsArr = [];
+        let stepDic = {...dic}
+        stepDic.type = 'read'
+        stepDic.filename = filename
+        stepDic.readType = tab
+        tempStepsArr.push(stepDic)
+        console.log(tempStepsArr)      
+        
+        console.log('Modal Ok')
+        axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, { data: null, dic:tempStepsArr[0] })
+          .then(res => {
+            dispatch(rewriteSteps(tempStepsArr))
+            dispatch(setOriginalData(null));
+            // dispatch(setRead(false));
+            dispatch(setCurrentData(res.data.data))
+            dispatch(setDataTypes(res.data.datatypes))
+            dispatch(setLoading(false))
+            setError('')
+            console.log((Date.now()-now)/1000)
+          })
+          .catch((error)=> {
+            dispatch(setRead(true));
+            setError(error.response.data)
+            dispatch(setLoading(false))
+          });
+        
       }
   
       
-    };
-
-    const handleCodeChange = (e) => {
-      setCode(e);
-    };
-
-    const handleCodeChangeEdit = (e) => {
-      let newdic = {...oldDic}
-      newdic.code=e
-      dispatch(setEditData(newdic))
-    };
-
-    const handleDelimiterChange = (e) => {
-      setDelimiter(e.nativeEvent.data);
-    };
-
-    const handleDelimiterChangeEdit = (e) => {
-      let newdic = {...oldDic}
-      newdic.delimiter=e.nativeEvent.data
-      dispatch(setEditData(newdic))
     };
 
     const handleOkEdit = () => {
@@ -233,12 +270,46 @@ function ReadCard(props) {
         });
         
       };
-      try {
-        reader.readAsBinaryString(selectedFile);
-      } catch {
-        dispatch(setRead(true));
-        setError('Please upload a file.')
-        dispatch(setLoading(false))
+      // console.log(tab)
+      if (oldDic.readType !== 'database') {
+        try {
+          reader.readAsBinaryString(selectedFile);
+        } catch {
+          dispatch(setRead(true));
+          setError('Please upload a file.')
+          dispatch(setLoading(false))
+        }
+      } else {
+        // console.log(tab)
+        dispatch(setLoading(true))
+        dispatch(setRead(false))
+        let tempStepsArr = [];
+        let stepDic = {...oldDic}
+        stepDic.type = 'read'
+        stepDic.filename = filename
+        // console.log(tab)
+        // stepDic.readType = tab
+        tempStepsArr.push(stepDic)
+        console.log(tempStepsArr)      
+        
+        console.log('Modal Ok')
+        axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, { data: null, dic:tempStepsArr[0] })
+          .then(res => {
+            dispatch(rewriteSteps(tempStepsArr))
+            dispatch(setOriginalData(null));
+            // dispatch(setRead(false));
+            dispatch(setCurrentData(res.data.data))
+            dispatch(setDataTypes(res.data.datatypes))
+            dispatch(resetEditData());
+            dispatch(setLoading(false))
+            setError('')
+          })
+          .catch((error)=> {
+            dispatch(setRead(true));
+            setError(error.response.data)
+            dispatch(setLoading(false))
+          });
+        
       }
 
     };
@@ -248,6 +319,7 @@ function ReadCard(props) {
         dispatch(setRead(false));
         dispatch(resetEditData());
         setError('')
+        setDic(EMPTYDIC)
         console.log('Modal Cancel')
         //dispatch(setLoading(false))
       }
@@ -278,10 +350,29 @@ function ReadCard(props) {
         </Card>
         </div>
         {!isEdit ?
-          <ReadModal isModalOpen={isModalOpen} handleOk={handleOk} handleCancel={handleCancel} handleFileUpload={handleFileUpload} handleCodeChange={handleCodeChange} handleDelimiterChange
-          ={handleDelimiterChange} code={code} delimiter={delimiter} onTabChange={onTabChange} defaultTab={tab} error={error}/>
-          :<ReadModal isModalOpen={isModalOpen} handleOk={handleOkEdit} handleCancel={handleCancel} handleFileUpload={handleFileUpload} handleCodeChange={handleCodeChangeEdit} handleDelimiterChange
-          ={handleDelimiterChangeEdit} code={oldDic.code} delimiter={oldDic.delimiter} onTabChange={onTabChangeEdit} defaultTab={oldDic.readType} error={error} />
+          <ReadModal 
+            isModalOpen={isModalOpen} 
+            handleOk={handleOk} 
+            handleCancel={handleCancel} 
+            handleFileUpload={handleFileUpload} 
+            onTabChange={onTabChange} 
+            defaultTab={tab} 
+            error={error}
+            onChange={onChange}
+            dic={dic}
+          />
+          :
+          <ReadModal 
+            isModalOpen={isModalOpen} 
+            handleOk={handleOkEdit} 
+            handleCancel={handleCancel} 
+            handleFileUpload={handleFileUpload} 
+            onTabChange={onTabChangeEdit} 
+            defaultTab={oldDic.readType} 
+            error={error} 
+            onChange={onChangeEdit}
+            dic={oldDic}
+          />
         }
         </div>
     );
