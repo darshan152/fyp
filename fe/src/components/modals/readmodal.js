@@ -81,6 +81,7 @@ function ReadModal(props) {
               children: <div>
                 <select value={props.dic.dbtype} onChange={props.onChange('dbtype')} name="databases" id="databases">
                   <option value="postgresql">PostgreSQL</option>
+                  <option value="mysql+pymysql">MySQL</option>
                   <option value="-">Nothing</option>
                 </select> <br/>
                 <label>Host: </label>

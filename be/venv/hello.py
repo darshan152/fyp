@@ -81,13 +81,18 @@ def read(data,dic):
             raise CustomCodeError('`df` is not of type DataFrame.')
     elif dic['readType'] == 'database':
         print(dic)
-        url_object = URL.create(
-            dic['dbtype'],
-            username=dic["user"],
-            password=dic["password"],  # plain (unescaped) text
-            host=dic["host"],
-            database=dic["dbname"],
-        )
+        try: 
+            url_object = URL.create(
+                dic['dbtype'],
+                username=dic["user"],
+                password=dic["password"],  # plain (unescaped) text
+                host=dic["host"],
+                port=dic["port"],
+                database=dic["dbname"],
+            )
+        except Exception as e:
+            print(e.args)
+            raise CustomCodeError('Please ensure all fields are filled up.')
         engine = create_engine(url_object)
         try:
             cnxn = engine.connect()
