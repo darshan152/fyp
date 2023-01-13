@@ -33,27 +33,37 @@ function ReadModal(props) {
               key: 'delimited',
               children: <div><input key={theInputKey || '' } type="file" accept=".csv"  onChange={props.handleFileUpload} /><br/><br/>
               <label>Delimiter: </label>
-              <Input value={props.dic.delimiter} onChange={props.onChange('delimiter')}/></div>,
+              <Input value={props.dic.delimiter} onChange={props.onChange('delimiter')}/>
+              <label>Path: </label>
+              <Input value={props.dic.path} onChange={props.onChange('path')} /></div>,
             },
             {
               label: 'XML',
               key: 'xml',
-              children: <div><input key={theInputKey || '' } type="file" accept=".xml"  onChange={props.handleFileUpload} /></div>,
+              children: <div><input key={theInputKey || '' } type="file" accept=".xml"  onChange={props.handleFileUpload} /> <br/><br/>
+              <label>Path: </label>
+              <Input value={props.dic.path} onChange={props.onChange('path')} /></div>,
             },
             {
               label: 'JSON',
               key: 'json',
-              children: <div><input key={theInputKey || '' } type="file" accept=".json"  onChange={props.handleFileUpload} /></div>,
+              children: <div><input key={theInputKey || '' } type="file" accept=".json"  onChange={props.handleFileUpload} /><br/><br/>
+              <label>Path: </label>
+              <Input value={props.dic.path} onChange={props.onChange('path')} /></div>,
             },
             {
               label: 'Fix-width',
               key: 'fix-width',
-              children: <div><input key={theInputKey || '' } type="file" accept="*"  onChange={props.handleFileUpload} /></div>,
+              children: <div><input key={theInputKey || '' } type="file" accept="*"  onChange={props.handleFileUpload} /><br/><br/>
+              <label>Path: </label>
+              <Input value={props.dic.path} onChange={props.onChange('path')} /></div>,
             },
             {
               label: 'Custom',
               key: 'custom',
               children: <div><input key={theInputKey || '' } type="file" accept="*"  onChange={props.handleFileUpload} /><br/><br/>
+              <label>Path: </label>
+              <Input value={props.dic.path} onChange={props.onChange('path')} />
               <p>Uploaded file is accesible as a StringIO object in `data`. Final dataframe needs to be loaded to the variable `df`.</p>
               <AceEditor
                 disable
@@ -84,6 +94,8 @@ function ReadModal(props) {
                   <option value="mysql+pymysql">MySQL</option>
                   <option value="-">Nothing</option>
                 </select> <br/>
+                <label>Airflow Connection ID: </label>
+                <Input value={props.dic.conn_id} onChange={props.onChange('conn_id')} />
                 <label>Host: </label>
                 <Input type='text' value={props.dic.host} onChange={props.onChange('host')}/><br/>
                 <label>Port: </label>

@@ -21,13 +21,15 @@ function PythonCard(props) {
   const datatypes = useSelector(state => state.csvData.value.datatypes)
   const isLoading = useSelector(state => state.csvData.value.loading)
   const dispatch = useDispatch()
+  const hasWrite = stepsArr.length !== 0 && stepsArr.at(-1).type === 'write'
+
 
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
 
 
     const showModal = () => {
-      if (!isLoading) {
+      if (!isLoading && !hasWrite) {
         dispatch(setPython(true));
         console.log('Opening Modal')
       }

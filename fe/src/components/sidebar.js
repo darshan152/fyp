@@ -3,6 +3,7 @@ import { Card } from 'antd';
 import HistoryCard from './historycard';
 import './components.css';
 import DownloadData from './downloaddata';
+import DownloadAirflow from './downloadairflow';
 
 function SideBar(props) {
     return(
@@ -12,6 +13,7 @@ function SideBar(props) {
                 <HistoryCard></HistoryCard>
             </Card>
             <DownloadData/>
+            <DownloadAirflow/>
         </div>
     );
 }

@@ -1,7 +1,7 @@
 import { Card, Space, Button } from 'antd';
 import { useSelector } from 'react-redux'
 import { useDispatch } from 'react-redux'
-import { setPython, setRead } from '../states/cardModalSlice';
+import { setPython, setRead, setWrite } from '../states/cardModalSlice';
 import axios from 'axios';
 
 import './components.css';
@@ -101,7 +101,9 @@ function HistoryCard(props) {
             dispatch(setPython(true));
         } else if (step['type'] === 'read') {
             dispatch(setRead(true));
-        }
+        } else if (step['type'] === 'write') {
+          dispatch(setWrite(true));
+      } 
 
         const newStep = {
             ...step,
