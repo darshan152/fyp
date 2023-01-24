@@ -158,6 +158,47 @@ def python(dic,df):
 
     return ans
 
+@app.route('/agg', methods=['GET', 'POST'])
+def agg_transformation():
+    # print('im here')
+    if request.method == 'POST':
+        f = request.get_json()
+        print(f['datatypes'])
+        df = pd.read_csv(StringIO(f['data']),dtype=f['datatypes'])
+
+        # print('hey')
+        ans = agg(f['dic'],df)
+        # print(ans)
+        dtype = extract_dtypes(ans)
+        # print(dtype)
+    return { 
+        'data':ans.to_csv(index=False),
+        'datatypes':(dtype),
+    }
+
+def agg(dic, df):
+    # print(df)
+    # print(dic)
+    # print('hallo')
+    l = list(map(lambda x: {x['col']:x['agg']},dic['aggRows']))
+
+    agg = {}
+    for i in l:
+        items = list(i.items())[0]
+        # print(items)
+        if items[0] in agg.keys():
+            agg[items[0]] = list(set(agg[items[0]] + items[1]))
+        else:
+            agg[items[0]] = items[1]
+    try:
+        ans = df.groupby(dic['groupby']).agg(agg).reset_index()
+        ans.columns = ans.columns.map(' '.join)
+        return ans
+    except Exception as e:
+        print('Aggregation failed.')
+        raise AggError('Aggregation failed, please check your inputs.')
+
+
 @app.route('/retransform', methods=['GET', 'POST'])
 def retransformation():
     if request.method == 'POST':
@@ -168,6 +209,8 @@ def retransformation():
             print(step)
             if step['type'] == 'python':
                 df = python(step,df)
+            if step['type'] == 'aggregation':
+                df = agg(step,df)
     print(df)
     dtype = extract_dtypes(df)
     return { 
@@ -196,4 +239,15 @@ class ReadError(werkzeug.exceptions.HTTPException):
 
 @app.errorhandler(ReadError)
 def handle_513(e):
+    return e.message, e.code
+
+class AggError(werkzeug.exceptions.HTTPException):
+    code = 514
+
+    def __init__(self, message):
+        super().__init__()
+        self.message = message
+
+@app.errorhandler(AggError)
+def handle_514(e):
     return e.message, e.code
