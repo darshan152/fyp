@@ -166,7 +166,7 @@ function AggregateCard(props) {
         <Card className='TransformCard'>
             <img
                 width={50}
-                src="/python.png"
+                src="/sum.png"
                 alt=''
             />
             <br/>
