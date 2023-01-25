@@ -55,6 +55,23 @@ function DownloadAirflow(props) {
         return transform_fn+`        ${curr.code.split('\n').join('\n        ')}\n        df = final_df\n`
     }
 
+    const processAggregation = (transform_fn,curr) => {
+        let aggRows = curr['aggRows'].map((x) => {let c = {[x.col]:x.agg}; return c})
+        let agg = {}
+        for (var i = 0; i < aggRows.length; i++) {
+            let curr = aggRows[i]
+            let keyCurr = Object.keys(curr)[0]
+            if (keyCurr in agg) {
+                agg[keyCurr] = agg[keyCurr].concat(curr[keyCurr])
+            } else {
+                agg[keyCurr] = curr[keyCurr] 
+            }
+        }
+        return transform_fn+`        df = df.groupby('${curr['groupby']}').agg(${JSON.stringify(agg)}).reset_index()
+        df.columns = df.columns.map(' '.join)
+`
+    }
+
     const processWrite = (curr) => {
         console.log('meow')
         if (curr.readType === 'database') {
@@ -89,6 +106,9 @@ function DownloadAirflow(props) {
                 extract_fn = processRead(curr)
             } else if (curr.type === 'python') {
                 transform_fn = processPython(transform_fn,curr)
+                console.log(transform_fn)
+            } else if (curr.type === 'aggregation') {
+                transform_fn = processAggregation(transform_fn,curr)
                 console.log(transform_fn)
             } else if (curr.type === 'write') {
                 load_fn = processWrite(curr)

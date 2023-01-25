@@ -177,15 +177,11 @@ def agg_transformation():
     }
 
 def agg(dic, df):
-    # print(df)
-    # print(dic)
-    # print('hallo')
     l = list(map(lambda x: {x['col']:x['agg']},dic['aggRows']))
-
+    
     agg = {}
     for i in l:
         items = list(i.items())[0]
-        # print(items)
         if items[0] in agg.keys():
             agg[items[0]] = list(set(agg[items[0]] + items[1]))
         else:
