@@ -1,14 +1,15 @@
 import { React, useState} from 'react';
 import { useSelector } from 'react-redux'
-import { Button, Modal, Input } from 'antd';
+import { Button, Modal, Input, Tooltip } from 'antd';
 import './components.css';
-import { DownloadOutlined } from '@ant-design/icons';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 
 
 function DownloadAirflow(props) {
     const stepsArr = useSelector(state => state.stepsArr.value)
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [path, setPath] = useState('');
+    const [schInt, setSchInt] = useState('');
 
 
     const processRead = (curr) => {
@@ -99,6 +100,7 @@ function DownloadAirflow(props) {
         let extract_fn
         let transform_fn = ''
         let load_fn
+        const date = new Date();
         for (var i = 0; i < stepsArr.length; i++) {
             console.log(stepsArr[i]);
             let curr = stepsArr[i]
@@ -128,8 +130,8 @@ from airflow.providers.postgres.operators.postgres import PostgresOperator
 
 with DAG(
     dag_id='test_from_react',
-    schedule_interval='@daily',
-    start_date=datetime(year=2022, month=2, day=1),
+    schedule_interval='${schInt}',
+    start_date=datetime(year=${date.getFullYear()}, month=${date.getMonth()+1}, day=${date.getDate()}),
     catchup=False
 ) as dag:
     def extract():
@@ -188,6 +190,10 @@ ${load_fn}
         setPath(e.target.value)
     }
 
+    const onSchIntChange = (e) => {
+        setSchInt(e.target.value)
+    }
+
     return(
         <div>
             {/* <Button id='csvDownload' type='primary' onClick={downloadCsv} value='download' shape='round' icon={<DownloadOutlined />}>Download</Button> */}
@@ -196,6 +202,8 @@ ${load_fn}
                 <p>Add airflow shtwuff</p>
                 <label>Path:</label>
                 <Input value={path} onChange={onPathChange}></Input>
+                <label>Schedule Interval: </label><Tooltip title="Use crontab"><a href='https://crontab.guru' target="_blank" rel="noreferrer"><QuestionCircleOutlined /></a></Tooltip>
+                <Input value={schInt} onChange={onSchIntChange}></Input>
             </Modal>
         </div>
     );
