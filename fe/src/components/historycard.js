@@ -1,4 +1,4 @@
-import { Card, Space, Button } from 'antd';
+import { Alert, Space, Button, message } from 'antd';
 import { useSelector } from 'react-redux'
 import { useDispatch } from 'react-redux'
 import { setAggregate, setPython, setRead, setWrite } from '../states/cardModalSlice';
@@ -22,6 +22,7 @@ function HistoryCard(props) {
     const isLoading = useSelector(state => state.csvData.value.loading)
     console.log(stepsArr)
     const dispatch = useDispatch()
+
 
     const type = 'DraggableBodyRow';
   const DraggableBodyRow = ({ index, moveRow, className, style, ...restProps }) => {
@@ -126,6 +127,9 @@ function HistoryCard(props) {
             dispatch(setDataTypes(res.data.datatypes));
             dispatch(editStep(newSteps));
             dispatch(setLoading(false))
+        }).catch(error => {
+          message.error("Delete failed: " + error.response.data);
+          dispatch(setLoading(false))
         })
       }
     }
@@ -145,16 +149,21 @@ function HistoryCard(props) {
       };
       const moveRow = useCallback(
         (dragIndex, hoverIndex) => {
-          if (hoverIndex === 0  || dragIndex === 0) {
+          if (hoverIndex === 0  || dragIndex === 0 || stepsArr[dragIndex]['type'] === 'write' || stepsArr[hoverIndex]['type'] === 'write') {
             return
           }
           const handleStepsMove = (newStepsArr) => {
             console.log(newStepsArr)
+            dispatch(setLoading(true))
             axios.post(`${process.env.REACT_APP_BACKEND_URL}/retransform`, {data:originalData,stepsArr:newStepsArr})
               .then(res => {
                   dispatch(setCurrentData(res.data.data));
                   dispatch(setDataTypes(res.data.datatypes));
                   dispatch(editStep(newStepsArr));
+                  dispatch(setLoading(false))
+              }).catch(error => {
+                message.error("Rearrange failed: " + error.response.data);
+                dispatch(setLoading(false))
               })
           }
           const dragRow = stepsArr[dragIndex];
