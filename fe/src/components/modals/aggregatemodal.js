@@ -6,7 +6,7 @@ import { Modal, Alert, Select } from 'antd';
 
 function AggregateModal(props) {
 
-  const cols = Object.keys(props.dic.datatypes).map((col) => {let c = {"value":col,"label":col}; return c})
+  const cols = props.dic.datatypes!==undefined ? Object.keys(props.dic.datatypes).map((col) => {let c = {"value":col,"label":col}; return c}) : null
 
   const aggs = [{label:'sum',value:'sum'},{label:'mean',value:'mean'},{label:'min',value:'min'},{label:'max',value:'max'},
   {label:'count',value:'count'},{label:'first',value:'first'},{label:'last',value:'last'},{label:'median',value:'median'},{label:'std',value:'std'},{label:'var',value:'var'}]
@@ -28,7 +28,7 @@ function AggregateModal(props) {
             value={props.dic.groupby}
             />
             <p>Aggregations:</p>
-            {props.dic.aggRows.map((element,index) => (
+            {props.dic.aggRows !== undefined ? props.dic.aggRows.map((element,index) => (
               <div>
               <Select
                 style={{
@@ -49,7 +49,7 @@ function AggregateModal(props) {
                   value={element.agg}
                 /> <br/><br/>
                 </div>
-            ))}
+            )) : null}
             <button onClick={props.addRow}>Add</button>
             <button onClick={props.delRow}>Delete</button>
             </Modal>
