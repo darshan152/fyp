@@ -187,8 +187,11 @@ def agg(dic, df):
         else:
             agg[items[0]] = items[1]
     try:
-        ans = df.groupby(dic['groupby']).agg(agg).reset_index()
-        ans.columns = ans.columns.map(' '.join)
+        if dic['groupby'] :
+            ans = df.groupby(dic['groupby']).agg(agg).reset_index()
+        else:
+            ans = df.agg(agg).reset_index()
+        ans.columns = ans.columns.map(lambda x: ' '.join(x) if type(x)!=str else x)
         return ans
     except Exception as e:
         print('Aggregation failed.')

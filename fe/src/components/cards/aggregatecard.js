@@ -121,6 +121,7 @@ function AggregateCard(props) {
         dispatch(setCurrentData(res.data.data));
         dispatch(setDataTypes(res.data.datatypes));
         dispatch(setLoading(false))
+        setError('')
         dispatch(setAggregate(false));
         setDic(EMPTYDIC)
       }).catch(error => {
