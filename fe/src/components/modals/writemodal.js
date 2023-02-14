@@ -41,10 +41,17 @@ function WriteModal(props) {
                 <select value={props.dic.dbtype} onChange={props.onChange('dbtype')} name="databases" id="databases">
                   <option value="postgresql">PostgreSQL</option>
                   <option value="mysql+pymysql">MySQL</option>
-                  <option value="-">Nothing</option>
+                  <option value="oracle">Oracle</option>
+                  <option value="mssql">MsSql</option>
+                  <option value="sqlite">Sqlite</option>
+                  <option value="redshift">Redshift</option>
+                  <option value="hive">Hive</option>
+                  {/* <option value="-">Nothing</option> */}
                 </select> <br/>
                 <label>Airflow Connection ID: </label>
                 <Input value={props.dic.conn_id} onChange={props.onChange('conn_id')} />
+                <label>Table name: </label>
+                <Input value={props.dic.table} onChange={props.onChange('table')} />
               </div>,
             },
           ]}>

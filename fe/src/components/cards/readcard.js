@@ -24,7 +24,7 @@ function ReadCard(props) {
     const isLoading = useSelector(state => state.csvData.value.loading)
     const dispatch = useDispatch()
 
-    const EMPTYDIC = {delimiter:',',code:'', dbtype:'postgresql'}
+    const EMPTYDIC = {delimiter:',',code:'', dbtype:'postgresql', isfileupload:false}
 
     const [tab, setTab] = useState("delimited");
     const [error, setError] = useState("");
@@ -42,6 +42,18 @@ function ReadCard(props) {
         console.log(newDic)
       }
       return onChangeItem
+    }
+
+    const onChangeMultiple = (item) => {
+      let newDic = {...dic,...item}
+      setDic(newDic)
+      console.log(newDic)
+    }
+
+    const onChangeMultipleEdit = (item) => {
+      let newDic = {...oldDic,...item}
+      dispatch(setEditData(newDic))
+      console.log(newDic)
     }
 
     const onChangeEdit = (item) => {
@@ -187,7 +199,7 @@ function ReadCard(props) {
           });
 
       };
-      if (tab !== 'database') {
+      if (tab !== 'database'|| (tab === 'database' && dic.isfileupload === true)) {
         try {
           reader.readAsBinaryString(selectedFile);
         } catch {
@@ -271,7 +283,7 @@ function ReadCard(props) {
         
       };
       // console.log(tab)
-      if (oldDic.readType !== 'database') {
+      if (oldDic.readType !== 'database' || (oldDic.readType === 'database' && oldDic.isfileupload === true)) {
         try {
           reader.readAsBinaryString(selectedFile);
         } catch {
@@ -359,6 +371,7 @@ function ReadCard(props) {
             defaultTab={tab} 
             error={error}
             onChange={onChange}
+            onChangeMultiple={onChangeMultiple}
             dic={dic}
           />
           :
@@ -371,6 +384,7 @@ function ReadCard(props) {
             defaultTab={oldDic.readType} 
             error={error} 
             onChange={onChangeEdit}
+            onChangeMultiple={onChangeMultipleEdit}
             dic={oldDic}
           />
         }

@@ -24,17 +24,47 @@ function DownloadAirflow(props) {
         # cursor = pg_conn.cursor()
         # cursor.execute(sql_stmt)
         # print(cursor.fetchall())
-        df = pd.read_sql_query (sql_stmt, pg_conn)`
+        df = pd.read_sql_query(sql_stmt, pg_conn)`
             } else if (curr.dbtype === 'mysql+pymysql') {
                 return `        sql_stmt = "${curr.sql}"
-        pg_hook = MySqlHook(
+        hook = MySqlHook(
             mysql_conn_id='${curr.conn_id}'
         )
-        pg_conn = pg_hook.get_conn()
+        conn = hook.get_conn()
         # cursor = pg_conn.cursor()
         # cursor.execute(sql_stmt)
         # print(cursor.fetchall())
-        df = pd.read_sql_query (sql_stmt, pg_conn)`
+        df = pd.read_sql_query(sql_stmt, conn)`
+            } else if (curr.dbtype === 'oracle') {
+                return `        sql_stmt = "${curr.sql}"
+        hook = OracleHook(
+            oracle_conn_id ='${curr.conn_id}'
+        )
+        conn = hook.get_conn()
+        # cursor = pg_conn.cursor()
+        # cursor.execute(sql_stmt)
+        # print(cursor.fetchall())
+        df = pd.read_sql_query(sql_stmt, conn)`
+            } else if (curr.dbtype === 'mssql') {
+                return `        sql_stmt = "${curr.sql}"
+        hook = MsSqlHook(
+            mssql_conn_id ='${curr.conn_id}'
+        )
+        conn = hook.get_conn()
+        # cursor = pg_conn.cursor()
+        # cursor.execute(sql_stmt)
+        # print(cursor.fetchall())
+        df = pd.read_sql_query(sql_stmt, conn)`
+            } else if (curr.dbtype === 'sqlite') {
+                return `        sql_stmt = "${curr.sql}"
+        hook = SqliteHook(
+            sqlite_conn_id ='${curr.conn_id}'
+        )
+        conn = hook.get_conn()
+        # cursor = pg_conn.cursor()
+        # cursor.execute(sql_stmt)
+        # print(cursor.fetchall())
+        df = pd.read_sql_query(sql_stmt, conn)`
             }
         } else if (curr.readType === 'delimited') {
             return `        df = pd.read_csv('${curr.path}',delimiter='${curr.delimiter}')`
@@ -140,17 +170,52 @@ function DownloadAirflow(props) {
         console.log('meow')
         if (curr.readType === 'database') {
             if (curr.dbtype === 'postgresql') {
-                return `        pg_hook = PostgresHook(
+                return `        hook = PostgresHook(
             postgres_conn_id='${curr.conn_id}'
         )
-        engine = pg_hook.get_sqlalchemy_engine()
-        df.to_sql(name='meow', con=engine)`
+        engine = hook.get_sqlalchemy_engine()
+        df.to_sql(name='${curr.table}', con=engine)`
             } else if (curr.dbtype === 'mysql+pymysql') {
-                return `        pg_hook = MySqlHook(
+                return `        hook = MySqlHook(
             mysql_conn_id='${curr.conn_id}'
         )
-        engine = pg_hook.get_sqlalchemy_engine()
-        df.to_csv(name='meow',con=engine)`
+        engine = hook.get_sqlalchemy_engine()
+        df.to_sql(name='${curr.table}',con=engine)`
+            } else if (curr.dbtype === 'oracle') {
+                return `        hook = OracleHook(
+            oracle_conn_id ='${curr.conn_id}'
+        )
+        engine = hook.get_sqlalchemy_engine()
+        df.to_sql(name='${curr.table}',con=engine)`
+            } else if (curr.dbtype === 'mssql') {
+                return `        hook = MsSqlHook(
+                mssql_conn_id ='${curr.conn_id}'
+        )
+        engine = hook.get_sqlalchemy_engine()
+        df.to_sql(name='${curr.table}',con=engine)`
+            } else if (curr.dbtype === 'sqlite') {
+                return `        hook = SqliteHook(
+                sqlite_conn_id ='${curr.conn_id}'
+        )
+        engine = hook.get_sqlalchemy_engine()
+        df.to_sql(name='${curr.table}',con=engine)`
+            } else if (curr.dbtype === 'redshift') {
+                return `        hook = RedshiftSQLHook(
+                redshift_conn_id ='${curr.conn_id}'
+        )
+        engine = hook.get_sqlalchemy_engine()
+        df.to_sql(name='${curr.table}',con=engine)`
+        //     } else if (curr.dbtype === 'hdfs') {
+        //         return `        hook = HDFSHook(
+        //         hdfs_conn_id ='${curr.conn_id}'
+        // )
+        // engine = hook.get_sqlalchemy_engine()
+        // df.to_sql(name='${curr.table}',con=engine)`
+            } else if (curr.dbtype === 'hive') {
+                return `        hook = HiveCliHook(
+                hive_cli_conn_id ='${curr.conn_id}'
+        )
+        hook.load_df(df,'${curr.table}')`
             }
         } else if (curr.readType === 'delimited') {
             return `        df.to_csv('${curr.path}',sep='${curr.delimiter}')`
@@ -160,9 +225,9 @@ function DownloadAirflow(props) {
 
     const downloadCsv = () => {
         console.log('download clicked')
-        let extract_fn
+        let extract_fn = ''
         let transform_fn = ''
-        let load_fn
+        let load_fn = ''
         const date = new Date();
         for (var i = 0; i < stepsArr.length; i++) {
             console.log(stepsArr[i]);
@@ -190,6 +255,12 @@ from airflow.models import DAG
 from airflow.operators.python import PythonOperator
 from airflow.hooks.postgres_hook import PostgresHook
 # from airflow.hooks.mysql_hook import MySqlHook
+# from airflow.providers.oracle.hooks.oracle import OracleHook
+# from airflow.providers.microsoft.mssql.hooks.mssql import MsSqlHook
+# from airflow.providers.sqlite.hooks.sqlite import SqliteHook
+# from airflow.providers.amazon.aws.hooks.redshift_sql import RedshiftSQLHook
+# from airflow.providers.apache.hdfs.hooks.hdfs import HDFSHook
+# from airflow.providers.apache.hive.hooks.hive import HiveCliHook
 from airflow.models import Variable
 from airflow.operators.bash import BashOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator

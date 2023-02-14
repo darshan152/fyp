@@ -1,4 +1,5 @@
-import { Modal, Tabs, Input, Alert } from 'antd';
+import { Modal, Tabs, Input, Alert, Switch, message } from 'antd';
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux'
 
 import { React, useState } from 'react';
@@ -9,6 +10,7 @@ import AceEditor from "react-ace";
 
 function ReadModal(props) {
   const [theInputKey, setTheInputKey] = useState("");
+  const [error, setError] = useState("");
   const stepsArr = useSelector(state => state.stepsArr.value)
   const hasRead = stepsArr.length !== 0 && stepsArr[0].type === 'read'
 
@@ -19,6 +21,29 @@ function ReadModal(props) {
     props.onTabChange(e)
     setTheInputKey(Math.random().toString(36))
   };
+
+  const isFileUpload = (e) => {
+    if (props.dic.dbtype === 'oracle' || props.dic.dbtype === 'mssql' || props.dic.dbtype === 'sqlite') {
+      message.error('Connection type not supported');
+      return
+    }
+    console.log(e)
+    props.onChange('isfileupload')(e)
+  }
+
+  const changeDbType = (e) => {
+    console.log(e.target.value)
+    if (e.target.value === 'oracle' || e.target.value === 'mssql' || e.target.value === 'sqlite' ) {
+      console.log('hi')
+      props.onChangeMultiple({isfileupload:true,dbtype:e.target.value})
+      // props.onChange('isfileupload')(true)
+      // setTimeout(props.onChange('isfileupload')(true),10000)
+      console.log(props.dic.isfileupload)
+    } else {
+      props.onChange('dbtype')(e)
+    }
+    
+  }
 
     return (
         <Modal title="Read Data" open={props.isModalOpen} onOk={props.handleOk} onCancel={props.handleCancel} cancelButtonProps={{disabled:!hasRead}} closable={hasRead}>
@@ -89,13 +114,20 @@ function ReadModal(props) {
               label: 'Database',
               key: 'database',
               children: <div>
-                <select value={props.dic.dbtype} onChange={props.onChange('dbtype')} name="databases" id="databases">
+                <select value={props.dic.dbtype} onChange={changeDbType} name="databases" id="databases">
                   <option value="postgresql">PostgreSQL</option>
                   <option value="mysql+pymysql">MySQL</option>
-                  <option value="-">Nothing</option>
+                  <option value="oracle">Oracle</option>
+                  <option value="mssql">MsSql</option>
+                  <option value="sqlite">Sqlite</option>
+                  {/* <option value="-">Nothing</option> */}
                 </select> <br/>
+                <label>Upload csv sample: </label>
+                <Switch checked={props.dic.isfileupload} checkedChildren={<CheckOutlined />} unCheckedChildren={<CloseOutlined />} onChange={isFileUpload}/><br/>
                 <label>Airflow Connection ID: </label>
                 <Input value={props.dic.conn_id} onChange={props.onChange('conn_id')} />
+                {!props.dic.isfileupload ?
+                <div>
                 <label>Host: </label>
                 <Input type='text' value={props.dic.host} onChange={props.onChange('host')}/><br/>
                 <label>Port: </label>
@@ -106,6 +138,11 @@ function ReadModal(props) {
                 <Input type='password' value={props.dic.password} onChange={props.onChange('password')}/><br/>
                 <label>Database Name: </label>
                 <Input type='text' value={props.dic.dbname} onChange={props.onChange('dbname')}/><br/>
+                </div>
+                : <div>
+                  <input key={theInputKey || '' } type="file" accept=".csv"  onChange={props.handleFileUpload} /> <br/> 
+                  </div>}
+                
                 <label>SQL Query: </label>
                 <Input type='text' value={props.dic.sql} onChange={props.onChange('sql')}/><br/>
               </div>,

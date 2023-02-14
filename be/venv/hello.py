@@ -83,29 +83,35 @@ def read(data,dic):
             raise CustomCodeError('`df` is not of type DataFrame.')
     elif dic['readType'] == 'database':
         print(dic)
-        try: 
-            url_object = URL.create(
-                dic['dbtype'],
-                username=dic["user"],
-                password=dic["password"],  # plain (unescaped) text
-                host=dic["host"],
-                port=dic["port"],
-                database=dic["dbname"],
-            )
-        except Exception as e:
-            print(e.args)
-            raise CustomCodeError('Please ensure all fields are filled up.')
-        engine = create_engine(url_object)
-        try:
-            cnxn = engine.connect()
-        except Exception as e:
-            print(e.args)
-            raise CustomCodeError('Connection to Database Failed.')
-        try:
-            df = pd.read_sql_query (dic["sql"], cnxn)
-        except Exception as e:
-            raise CustomCodeError('Error in SQL code.')
-
+        if dic['isfileupload']:
+            try: 
+                df = pd.read_csv(StringIO(data))
+            except Exception as e:
+                print(e)
+                raise ReadError('Error parsing delimited file. Please check the file.')
+        else:
+            try: 
+                url_object = URL.create(
+                    dic['dbtype'],
+                    username=dic["user"],
+                    password=dic["password"],  # plain (unescaped) text
+                    host=dic["host"],
+                    port=dic["port"],
+                    database=dic["dbname"],
+                )
+            except Exception as e:
+                print(e.args)
+                raise CustomCodeError('Please ensure all fields are filled up.')
+            engine = create_engine(url_object)
+            try:
+                cnxn = engine.connect()
+            except Exception as e:
+                print(e.args)
+                raise CustomCodeError('Connection to Database Failed.')
+            try:
+                df = pd.read_sql_query (dic["sql"], cnxn)
+            except Exception as e:
+                raise CustomCodeError('Error in SQL code.')
     return df
 
 def extract_dtypes(df):
