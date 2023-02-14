@@ -5,6 +5,7 @@ import ReadCard from './cards/readcard';
 import PythonCard from './cards/pythoncard';
 import WriteCard from './cards/writecard';
 import AggregateCard from './cards/aggregatecard';
+import AddCard from './cards/addcard';
 
 function Ribbon(props) {
 
@@ -13,6 +14,7 @@ function Ribbon(props) {
         <ReadCard></ReadCard>
         <PythonCard></PythonCard>
         <AggregateCard></AggregateCard>
+        <AddCard></AddCard>
         <WriteCard></WriteCard>
 
         </div>

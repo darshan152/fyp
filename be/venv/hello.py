@@ -2,12 +2,14 @@ from flask import Flask
 from flask_cors import CORS
 from flask import request
 import pandas as pd
+import numpy as np
 from io import StringIO
 import json
 import werkzeug
 from sqlalchemy import create_engine
 import pandas as pd
 from sqlalchemy.engine import URL
+import statistics
 
 
 app = Flask(__name__)
@@ -118,13 +120,21 @@ def extract_dtypes(df):
         dtype = {df.name:str(d)}
     return dtype
 
+def read_internal(data,datatypes):
+    dt_arr = []
+    for key,val in datatypes.copy().items():
+        if 'date' in val:
+            dt_arr.append(key)
+            del datatypes[key]
+    return  pd.read_csv(StringIO(data),dtype=datatypes, parse_dates=dt_arr)
+
 
 @app.route('/python', methods=['GET', 'POST'])
 def python_transformation():
     if request.method == 'POST':
         f = request.get_json()
         print(f['datatypes'])
-        df = pd.read_csv(StringIO(f['data']),dtype=f['datatypes'])
+        df = read_internal(f['data'],f['datatypes'])
 
         ans = python(f['dic'],df)
         dtype = extract_dtypes(ans)
@@ -164,7 +174,7 @@ def agg_transformation():
     if request.method == 'POST':
         f = request.get_json()
         print(f['datatypes'])
-        df = pd.read_csv(StringIO(f['data']),dtype=f['datatypes'])
+        df = read_internal(f['data'],f['datatypes'])
 
         # print('hey')
         ans = agg(f['dic'],df)
@@ -196,6 +206,96 @@ def agg(dic, df):
     except Exception as e:
         print('Aggregation failed.')
         raise AggError('Aggregation failed, please check your inputs.')
+    
+@app.route('/add', methods=['GET', 'POST'])
+def add_transformation():
+    # print('im here')
+    if request.method == 'POST':
+        f = request.get_json()
+        print(f['datatypes'])
+        df = read_internal(f['data'],f['datatypes'])
+
+        # print('hey')
+        ans = add(f['dic'],df)
+        # print(ans)
+        dtype = extract_dtypes(ans)
+        # print(dtype)
+    return { 
+        'data':ans.to_csv(index=False),
+        'datatypes':(dtype),
+    }
+
+def add(dic, df):
+    for row in dic['addRows']:
+        print(row['add'])
+        if row['add'] == 'concat':
+            df[row['name']] = ''
+            for col in row['cols']:
+                df[row['name']] = df[row['name']] + df[col].map(str)
+        elif row['add'] == 'add_to_date':
+            if row['date_add_type'] == 'days':
+                df[row['name']] = df[row['col']] + pd.DateOffset(days=int(row['date_add_number']))
+            if row['date_add_type'] == 'months':
+                df[row['name']] = df[row['col']] + pd.DateOffset(months=int(row['date_add_number']))
+            if row['date_add_type'] == 'years':
+                df[row['name']] = df[row['col']] + pd.DateOffset(years=int(row['date_add_number']))
+            if row['date_add_type'] == 'hours':
+                df[row['name']] = df[row['col']] + pd.DateOffset(hours=int(row['date_add_number']))
+            if row['date_add_type'] == 'minutes':
+                df[row['name']] = df[row['col']] + pd.DateOffset(minutes=int(row['date_add_number']))
+            if row['date_add_type'] == 'seconds':
+                df[row['name']] = df[row['col']] + pd.DateOffset(seconds=int(row['date_add_number']))
+        elif row['add'] == 'abs':
+            df[row['name']] = df[row['col']].abs()
+        elif row['add'] == 'mean':
+            df[row['name']] = df[row['cols']].mean(axis=1)
+        elif row['add'] == 'ceil':
+            df[row['name']] = np.ceil(df[row['col']])
+        elif row['add'] == 'floor':
+            df[row['name']] = np.floor(df[row['col']])
+        elif row['add'] == 'round':
+            df[row['name']] = np.round(df[row['col']])
+        elif row['add'] == 'cumsum':
+            df[row['name']] = np.cumsum(df[row['col']])
+        elif row['add'] == 'sum':
+            df[row['name']] = 0
+            for col in row['cols']:
+                df[row['name']] = df[row['name']] + df[col].map(float)
+        elif row['add'] == 'subtract':
+            df[row['name']] = df[row['cols'][0]].map(float)
+            for col in row['cols'][1:]:
+                df[row['name']] = df[row['name']] - df[col].map(float)
+        elif row['add'] == 'multiply':
+            df[row['name']] = df[row['cols'][0]].map(float)
+            for col in row['cols'][1:]:
+                df[row['name']] = df[row['name']] * df[col].map(float)
+        elif row['add'] == 'divide':
+            df[row['name']] = df[row['cols'][0]].map(float)
+            for col in row['cols'][1:]:
+                df[row['name']] = df[row['name']] / df[col].map(float)
+        elif row['add'] == 'max':
+            df[row['name']] = df.apply(lambda x: max(x[row['cols']]),axis=1)
+        elif row['add'] == 'min':
+            df[row['name']] = df.apply(lambda x: min(x[row['cols']]),axis=1)
+        elif row['add'] == 'median':
+            df[row['name']] = df.apply(lambda x: statistics.median(x[row['cols']]),axis=1)
+        elif row['add'] == 'stdev':
+            df[row['name']] = df.apply(lambda x: statistics.stdev(x[row['cols']]),axis=1)
+        elif row['add'] == 'variance':
+            df[row['name']] = df.apply(lambda x: statistics.variance(x[row['cols']]),axis=1)
+        elif row['add'] == 'log10':
+            df[row['name']] = np.log10(df[row['col']])
+        elif row['add'] == 'log2':
+            df[row['name']] = np.log2(df[row['col']])
+        elif row['add'] == 'ln':
+            df[row['name']] = np.log(df[row['col']])
+        elif row['add'] == 'sqrt':
+            df[row['name']] = np.sqrt(df[row['col']])
+        elif row['add'] == 'length':
+            df[row['name']] = df[row['col']].astype(str).str.len()
+        elif row['add'] == 'reverse':
+            df[row['name']] = df[row['col']].astype(str).str[::-1]
+    return df
 
 
 @app.route('/retransform', methods=['GET', 'POST'])
@@ -210,6 +310,8 @@ def retransformation():
                 df = python(step,df)
             if step['type'] == 'aggregation':
                 df = agg(step,df)
+            if step['type'] == 'add':
+                df = add(step,df)
     print(df)
     dtype = extract_dtypes(df)
     return { 

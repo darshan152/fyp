@@ -73,6 +73,69 @@ function DownloadAirflow(props) {
 `
     }
 
+    const processAdd = (transform_fn,curr) => {
+        console.log(curr)
+        let addRows = curr.addRows
+        for (var i = 0; i < addRows.length; i++) {
+            let row = addRows[i]
+            if (row.add === 'abs') {
+                transform_fn = transform_fn + `        df['${row['name']}'] = df['${row['col']}'].abs()
+`
+            } else if (row.add === 'concat') {
+                transform_fn = transform_fn + `        df['${row['name']}'] = ''
+        for col in [${"'" + row['cols'].join("','") + "'"}]:
+            df['${row['name']}'] = df['${row['name']}'] + df[col].map(str)
+`
+            } else if (row.add === 'add_to_date') {
+                transform_fn = transform_fn + `        df['${row['name']}'] = df['${row['col']}'] + pd.DateOffset(${row['date_add_type']}=int(${row['date_add_number']}))
+`
+            } else if (row.add === 'mean') {
+                transform_fn = transform_fn + `        df['${row['name']}'] = df[[${"'" + row['cols'].join("','") + "'"}]].mean(axis=1)
+`
+            } else if (row.add === 'ceil' || row.add === 'floor' || row.add === 'round' || row.add === 'cumsum') {
+                transform_fn = transform_fn + `        df['${row['name']}'] = np.${row.add}(df['${row['col']}'])
+`
+            } else if (row.add === 'sum') {
+                transform_fn = transform_fn + `        df['${row['name']}'] = 0
+        for col in [${"'" + row['cols'].join("','") + "'"}]:
+            df['${row['name']}'] = df['${row['name']}'] + df[col].map(float)
+`
+            } else if (row.add === 'subtract') {
+                transform_fn = transform_fn + `        df['${row['name']}'] = df[[${"'" + row['cols'].join("','") + "'"}][0]].map(float)
+        for col in [${"'" + row['cols'].join("','") + "'"}][1:]:
+            df['${row['name']}'] = df['${row['name']}'] - df[col].map(float)
+`
+        } else if (row.add === 'multiply') {
+            transform_fn = transform_fn + `        df['${row['name']}'] = df[[${"'" + row['cols'].join("','") + "'"}][0]].map(float)
+        for col in [${"'" + row['cols'].join("','") + "'"}][1:]:
+            df['${row['name']}'] = df['${row['name']}'] * df[col].map(float)
+`
+        } else if (row.add === 'divide') {
+            transform_fn = transform_fn + `        df['${row['name']}'] = df[[${"'" + row['cols'].join("','") + "'"}][0]].map(float)
+        for col in [${"'" + row['cols'].join("','") + "'"}][1:]:
+            df['${row['name']}'] = df['${row['name']}'] / df[col].map(float)
+`
+        } else if (row.add === 'min' || row.add === 'max' || row.add === 'stdev' || row.add === 'variance' || row.add === 'median') {
+            transform_fn = transform_fn + `        df['${row['name']}'] = df.apply(lambda x: ${row['add']}(x[[${"'" + row['cols'].join("','") + "'"}]]),axis=1)
+`
+        } else if (row.add === 'log10' || row.add === 'log2' || row.add === 'sqrt') {
+            transform_fn = transform_fn + `        df['${row['name']}'] = np.${row.add}(df['${row['col']}'])
+`
+        } else if (row.add === 'ln') {
+            transform_fn = transform_fn + `        df['${row['name']}'] = np.log(df['${row['col']}'])
+`
+        } else if (row.add === 'length') {
+            transform_fn = transform_fn + `        df['${row['name']}'] = df['${row['col']}'].astype(str).str.len()
+`
+        } else if (row.add === 'reverse') {
+            transform_fn = transform_fn + `        df['${row['name']}'] = df['${row['col']}'].astype(str).str[::-1]
+`
+            }
+        }
+        return transform_fn
+    }
+
+
     const processWrite = (curr) => {
         console.log('meow')
         if (curr.readType === 'database') {
@@ -112,11 +175,15 @@ function DownloadAirflow(props) {
             } else if (curr.type === 'aggregation') {
                 transform_fn = processAggregation(transform_fn,curr)
                 console.log(transform_fn)
+            } else if (curr.type === 'add') {
+                transform_fn = processAdd(transform_fn,curr)
+                console.log(transform_fn)
             } else if (curr.type === 'write') {
                 load_fn = processWrite(curr)
             }
         }
         let airflow = `import pandas as pd
+import numpy as np
 from io import StringIO
 from datetime import datetime
 from airflow.models import DAG
@@ -126,6 +193,7 @@ from airflow.hooks.postgres_hook import PostgresHook
 from airflow.models import Variable
 from airflow.operators.bash import BashOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
+from statistics import variance, stdev, median
 
 
 with DAG(
