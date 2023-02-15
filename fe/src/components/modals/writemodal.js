@@ -1,4 +1,5 @@
-import { Modal, Tabs, Input, Alert } from 'antd';
+import { Modal, Tabs, Input, Switch } from 'antd';
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux'
 
 import { React, useState } from 'react';
@@ -47,7 +48,9 @@ function WriteModal(props) {
                   <option value="redshift">Redshift</option>
                   <option value="hive">Hive</option>
                   {/* <option value="-">Nothing</option> */}
-                </select> <br/>
+                </select> <br/>                
+                <label>Truncate & Load: </label>
+                <Switch checked={props.dic.trunc} checkedChildren={<CheckOutlined />} unCheckedChildren={<CloseOutlined />} onChange={props.onChange('trunc')}/><br/>
                 <label>Airflow Connection ID: </label>
                 <Input value={props.dic.conn_id} onChange={props.onChange('conn_id')} />
                 <label>Table name: </label>

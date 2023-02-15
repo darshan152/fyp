@@ -169,42 +169,68 @@ function DownloadAirflow(props) {
     const processWrite = (curr) => {
         console.log('meow')
         if (curr.readType === 'database') {
+            let truncate = ''
+            if (curr.trunc) {
+                truncate = `try:
+                    connection.execute("Delete from ${curr.table};")
+                except:
+                    pass`
+            }
             if (curr.dbtype === 'postgresql') {
+                
                 return `        hook = PostgresHook(
             postgres_conn_id='${curr.conn_id}'
         )
         engine = hook.get_sqlalchemy_engine()
-        df.to_sql(name='${curr.table}', con=engine)`
+        with engine.connect() as connection:
+            with connection.begin():
+                ${truncate}
+                df.to_sql('${curr.table}',connection, if_exists='append',index=False)`
             } else if (curr.dbtype === 'mysql+pymysql') {
                 return `        hook = MySqlHook(
             mysql_conn_id='${curr.conn_id}'
         )
         engine = hook.get_sqlalchemy_engine()
-        df.to_sql(name='${curr.table}',con=engine)`
+        with engine.connect() as connection:
+            with connection.begin():
+                ${truncate}
+                df.to_sql('${curr.table}',connection, if_exists='append',index=False)`
             } else if (curr.dbtype === 'oracle') {
                 return `        hook = OracleHook(
             oracle_conn_id ='${curr.conn_id}'
         )
         engine = hook.get_sqlalchemy_engine()
-        df.to_sql(name='${curr.table}',con=engine)`
+        with engine.connect() as connection:
+            with connection.begin():
+                ${truncate}
+                df.to_sql('${curr.table}',connection, if_exists='append',index=False)`
             } else if (curr.dbtype === 'mssql') {
                 return `        hook = MsSqlHook(
                 mssql_conn_id ='${curr.conn_id}'
         )
         engine = hook.get_sqlalchemy_engine()
-        df.to_sql(name='${curr.table}',con=engine)`
+        with engine.connect() as connection:
+            with connection.begin():
+                ${truncate}
+                df.to_sql('${curr.table}',connection, if_exists='append',index=False)`
             } else if (curr.dbtype === 'sqlite') {
                 return `        hook = SqliteHook(
                 sqlite_conn_id ='${curr.conn_id}'
         )
         engine = hook.get_sqlalchemy_engine()
-        df.to_sql(name='${curr.table}',con=engine)`
+        with engine.connect() as connection:
+            with connection.begin():
+                ${truncate}
+                df.to_sql('${curr.table}',connection, if_exists='append',index=False)`
             } else if (curr.dbtype === 'redshift') {
                 return `        hook = RedshiftSQLHook(
                 redshift_conn_id ='${curr.conn_id}'
         )
         engine = hook.get_sqlalchemy_engine()
-        df.to_sql(name='${curr.table}',con=engine)`
+        with engine.connect() as connection:
+            with connection.begin():
+                ${truncate}
+                df.to_sql('${curr.table}',connection, if_exists='append',index=False)`
         //     } else if (curr.dbtype === 'hdfs') {
         //         return `        hook = HDFSHook(
         //         hdfs_conn_id ='${curr.conn_id}'
@@ -212,9 +238,13 @@ function DownloadAirflow(props) {
         // engine = hook.get_sqlalchemy_engine()
         // df.to_sql(name='${curr.table}',con=engine)`
             } else if (curr.dbtype === 'hive') {
+                if (curr.trunc) {
+                    truncate = `hook.run_cli("Delete from ${curr.table};")`
+                }
                 return `        hook = HiveCliHook(
                 hive_cli_conn_id ='${curr.conn_id}'
         )
+        ${truncate}
         hook.load_df(df,'${curr.table}')`
             }
         } else if (curr.readType === 'delimited') {
