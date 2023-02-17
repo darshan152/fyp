@@ -16,7 +16,7 @@ function DownloadAirflow(props) {
         console.log('meow')
         if (curr.readType === 'database') {
             if (curr.dbtype === 'postgresql') {
-                return `        sql_stmt = "${curr.sql}"
+                return `        sql_stmt = f"""${curr.sql}"""
         pg_hook = PostgresHook(
             postgres_conn_id='${curr.conn_id}'
         )
@@ -26,7 +26,7 @@ function DownloadAirflow(props) {
         # print(cursor.fetchall())
         df = pd.read_sql_query(sql_stmt, pg_conn)`
             } else if (curr.dbtype === 'mysql+pymysql') {
-                return `        sql_stmt = "${curr.sql}"
+                return `        sql_stmt = f"""${curr.sql}"""
         hook = MySqlHook(
             mysql_conn_id='${curr.conn_id}'
         )
@@ -36,7 +36,7 @@ function DownloadAirflow(props) {
         # print(cursor.fetchall())
         df = pd.read_sql_query(sql_stmt, conn)`
             } else if (curr.dbtype === 'oracle') {
-                return `        sql_stmt = "${curr.sql}"
+                return `        sql_stmt = f"""${curr.sql}"""
         hook = OracleHook(
             oracle_conn_id ='${curr.conn_id}'
         )
@@ -46,7 +46,7 @@ function DownloadAirflow(props) {
         # print(cursor.fetchall())
         df = pd.read_sql_query(sql_stmt, conn)`
             } else if (curr.dbtype === 'mssql') {
-                return `        sql_stmt = "${curr.sql}"
+                return `        sql_stmt = f"""${curr.sql}"""
         hook = MsSqlHook(
             mssql_conn_id ='${curr.conn_id}'
         )
@@ -56,7 +56,7 @@ function DownloadAirflow(props) {
         # print(cursor.fetchall())
         df = pd.read_sql_query(sql_stmt, conn)`
             } else if (curr.dbtype === 'sqlite') {
-                return `        sql_stmt = "${curr.sql}"
+                return `        sql_stmt = f"""${curr.sql}"""
         hook = SqliteHook(
             sqlite_conn_id ='${curr.conn_id}'
         )
@@ -303,7 +303,7 @@ with DAG(
     start_date=datetime(year=${date.getFullYear()}, month=${date.getMonth()+1}, day=${date.getDate()}),
     catchup=False
 ) as dag:
-    def extract():
+    def extract(**kwargs):
 ${extract_fn}
         df.to_csv('${path.at(-1) !== '/' ? path + '/' : path}raw_data.csv')
     
@@ -319,6 +319,7 @@ ${load_fn}
     task_extract = PythonOperator(
         task_id='extract',
         python_callable=extract,
+        provide_context=True,
         #do_xcom_push=True
     )
 

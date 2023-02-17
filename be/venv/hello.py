@@ -10,10 +10,39 @@ from sqlalchemy import create_engine
 import pandas as pd
 from sqlalchemy.engine import URL
 import statistics
+import uuid 
+from datetime import datetime, timedelta
+import pendulum
+import time
+from random import random
 
 
 app = Flask(__name__)
 CORS(app)
+
+def ds_add(ds, days):
+    if not days:
+        return str(ds)
+    dt = datetime.strptime(str(ds), "%Y-%m-%d") + timedelta(days=days)
+    return dt.strftime("%Y-%m-%d")
+
+def ds_format(ds, input_format, output_format):
+    return datetime.strptime(str(ds), input_format).strftime(output_format)
+
+def datetime_diff_for_humans(dt, since):
+    return pendulum.instance(dt).diff_for_humans(since)
+
+
+macros={
+    'uuid':uuid,
+    'datetime':datetime,
+    'timedelta':timedelta,
+    'time':time,
+    'random':random,
+    'ds_add':ds_add,
+    'ds_format':ds_format,
+    'datetime_diff_for_humans':datetime_diff_for_humans,
+   }
 
 @app.route("/")
 def hello_world():
@@ -82,6 +111,31 @@ def read(data,dic):
                 raise CustomCodeError('Please return the dataframe in the variable `df`.')
             raise CustomCodeError('`df` is not of type DataFrame.')
     elif dic['readType'] == 'database':
+        kwargs={'data_interval_end': pendulum.today('utc'),
+                'data_interval_start':  pendulum.today('utc').add(days=-1),
+                'ds':  pendulum.today('utc').format('YYYY-MM-DD'),
+                'ds_nodash':  pendulum.today('utc').format('YYYYMMDD'),
+                'execution_date':  pendulum.now('utc'),
+                'logical_date':  pendulum.now('utc'),
+                'macros': macros,
+                'next_ds':  pendulum.today('utc').format('YYYY-MM-DD'),
+                'next_ds_nodash': pendulum.today('utc').format('YYYYMMDD'),
+                'next_execution_date': pendulum.now('utc'),
+                'prev_data_interval_start_success':  pendulum.today('utc').add(days=-1),
+                'prev_data_interval_end_success':  pendulum.today('utc'),
+                'prev_ds': pendulum.today('utc').format('YYYY-MM-DD'),
+                'prev_ds_nodash':  pendulum.today('utc').format('YYYYMMDD'),
+                'prev_execution_date':  pendulum.now('utc'),
+                'prev_execution_date_success':  pendulum.today('utc').add(days=-1),
+                'prev_start_date_success':  pendulum.now('utc'),
+                'tomorrow_ds': pendulum.today('utc').add(days=1).format('YYYY-MM-DD'),
+                'tomorrow_ds_nodash':  pendulum.today('utc').add(days=1).format('YYYYMMDD'),
+                'ts':  pendulum.now('utc').format('YYYY-MM-DDThh:mm:ss:msZ'),
+                'ts_nodash':  pendulum.now('utc').format('YYYYMMDDThhmmss'),
+                'ts_nodash_with_tz': pendulum.now('utc').format('YYYYMMDDThhmmssmsZ').replace(':',''),
+                'yesterday_ds': pendulum.today('utc').add(days=-1).format('YYYY-MM-DD'),
+                'yesterday_ds_nodash': pendulum.today('utc').add(days=-1).format('YYYYMMDD'),
+                }
         print(dic)
         if dic['isfileupload']:
             try: 
@@ -108,8 +162,12 @@ def read(data,dic):
             except Exception as e:
                 print(e.args)
                 raise CustomCodeError('Connection to Database Failed.')
+            sql_stmt = dic["sql"]
+            print('test')
+            sql_stmt = eval('f"""{}"""'.format(sql_stmt))
+            print(sql_stmt)
             try:
-                df = pd.read_sql_query (dic["sql"], cnxn)
+                df = pd.read_sql_query(sql_stmt, cnxn)
             except Exception as e:
                 raise CustomCodeError('Error in SQL code.')
     return df
