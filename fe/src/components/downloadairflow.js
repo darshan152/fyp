@@ -73,32 +73,51 @@ function DownloadAirflow(props) {
         os.makedirs(dest_path, exist_ok=True)
         os.replace('${curr.path}',dest_path)
 `
-            return `        df = pd.read_csv('${curr.path}',delimiter='${curr.delimiter}')`
+            return `        files = glob.glob('${curr.path}')
+        if len(files) == 0:
+            pass
+        files.sort(key=lambda x: -os.path.getmtime(x))
+        df = pd.read_csv(files[0],delimiter='${curr.delimiter}')`
         } else if (curr.readType === 'xml') {
             cleanup += `        dest_path = os.path.dirname('${curr.path}')+'/success'
         os.makedirs(dest_path, exist_ok=True)
         os.replace('${curr.path}',dest_path)
 `
-            return `        df = pd.read_xml('${curr.path}')`
+            return `        files = glob.glob('${curr.path}')
+        if len(files) == 0:
+            pass
+        files.sort(key=lambda x: -os.path.getmtime(x))
+        df = pd.read_xml(files[0])`
         } else if (curr.readType === 'json') {
             cleanup += `        dest_path = os.path.dirname('${curr.path}')+'/success'
         os.makedirs(dest_path, exist_ok=True)
         os.replace('${curr.path}',dest_path)
 `
-            return `        df = pd.read_json('${curr.path}')`
+            return `        files = glob.glob('${curr.path}')
+        if len(files) == 0:
+            pass
+        files.sort(key=lambda x: -os.path.getmtime(x))
+        df = pd.read_json(files[0])`
         } else if (curr.readType === 'fix-width') {
             cleanup += `        dest_path = os.path.dirname('${curr.path}')+'/success'
         os.makedirs(dest_path, exist_ok=True)
         os.replace('${curr.path}',dest_path)
 `
-            return `        df = pd.read_fwf('${curr.path}')`
+            return `        files = glob.glob('${curr.path}')
+        if len(files) == 0:
+            pass
+        files.sort(key=lambda x: -os.path.getmtime(x))
+        df = pd.read_fwf(files[0])`
         } else if (curr.readType === 'custom') {
             cleanup += `        dest_path = os.path.dirname('${curr.path}')+'/success'
         os.makedirs(dest_path, exist_ok=True)
         os.replace('${curr.path}',dest_path)
 `
-            return `        path = '${curr.path}'
-        f = open(path, 'r')
+            return `        files = glob.glob('${curr.path}')
+        if len(files) == 0:
+            pass
+        files.sort(key=lambda x: -os.path.getmtime(x))
+        f = open(files[0], 'r')
         data = StringIO(f.read())
         ${curr.code.split('\n').join('\n        ')}`
         }
@@ -330,6 +349,7 @@ from airflow.providers.postgres.operators.postgres import PostgresOperator
 from statistics import variance, stdev, median
 import shutil
 import os
+import glob
 
 
 with DAG(
