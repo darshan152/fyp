@@ -1,15 +1,17 @@
 import { React, useState} from 'react';
 import { useSelector } from 'react-redux'
-import { Button, Modal, Input, Tooltip } from 'antd';
+import { Button, Modal, Input, Tooltip, Switch } from 'antd';
 import './components.css';
-import { QuestionCircleOutlined } from '@ant-design/icons';
+import { QuestionCircleOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 
 
 function DownloadAirflow(props) {
     const stepsArr = useSelector(state => state.stepsArr.value)
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [path, setPath] = useState('');
+    const [isCleanup, setIsCleanup] = useState(false);
     const [schInt, setSchInt] = useState('');
+    let cleanup = '';
 
 
     const processRead = (curr) => {
@@ -67,14 +69,34 @@ function DownloadAirflow(props) {
         df = pd.read_sql_query(sql_stmt, conn)`
             }
         } else if (curr.readType === 'delimited') {
+            cleanup += `        dest_path = os.path.dirname('${curr.path}')+'/success'
+        os.makedirs(dest_path, exist_ok=True)
+        os.replace('${curr.path}',dest_path)
+`
             return `        df = pd.read_csv('${curr.path}',delimiter='${curr.delimiter}')`
         } else if (curr.readType === 'xml') {
+            cleanup += `        dest_path = os.path.dirname('${curr.path}')+'/success'
+        os.makedirs(dest_path, exist_ok=True)
+        os.replace('${curr.path}',dest_path)
+`
             return `        df = pd.read_xml('${curr.path}')`
         } else if (curr.readType === 'json') {
+            cleanup += `        dest_path = os.path.dirname('${curr.path}')+'/success'
+        os.makedirs(dest_path, exist_ok=True)
+        os.replace('${curr.path}',dest_path)
+`
             return `        df = pd.read_json('${curr.path}')`
         } else if (curr.readType === 'fix-width') {
+            cleanup += `        dest_path = os.path.dirname('${curr.path}')+'/success'
+        os.makedirs(dest_path, exist_ok=True)
+        os.replace('${curr.path}',dest_path)
+`
             return `        df = pd.read_fwf('${curr.path}')`
         } else if (curr.readType === 'custom') {
+            cleanup += `        dest_path = os.path.dirname('${curr.path}')+'/success'
+        os.makedirs(dest_path, exist_ok=True)
+        os.replace('${curr.path}',dest_path)
+`
             return `        path = '${curr.path}'
         f = open(path, 'r')
         data = StringIO(f.read())
@@ -168,6 +190,9 @@ function DownloadAirflow(props) {
 
     const processWrite = (curr) => {
         console.log('meow')
+        if (isCleanup) {
+            cleanup += `        shutil.rmtree('${path}')`
+        }
         if (curr.readType === 'database') {
             let truncate = ''
             if (curr.trunc) {
@@ -185,7 +210,8 @@ function DownloadAirflow(props) {
         with engine.connect() as connection:
             with connection.begin():
                 ${truncate}
-                df.to_sql('${curr.table}',connection, if_exists='append',index=False)`
+                df.to_sql('${curr.table}',connection, if_exists='append',index=False)
+        ${cleanup.split('\n').join('\n        ')}`
             } else if (curr.dbtype === 'mysql+pymysql') {
                 return `        hook = MySqlHook(
             mysql_conn_id='${curr.conn_id}'
@@ -194,7 +220,8 @@ function DownloadAirflow(props) {
         with engine.connect() as connection:
             with connection.begin():
                 ${truncate}
-                df.to_sql('${curr.table}',connection, if_exists='append',index=False)`
+                df.to_sql('${curr.table}',connection, if_exists='append',index=False)
+        ${cleanup.split('\n').join('\n        ')}`
             } else if (curr.dbtype === 'oracle') {
                 return `        hook = OracleHook(
             oracle_conn_id ='${curr.conn_id}'
@@ -203,7 +230,8 @@ function DownloadAirflow(props) {
         with engine.connect() as connection:
             with connection.begin():
                 ${truncate}
-                df.to_sql('${curr.table}',connection, if_exists='append',index=False)`
+                df.to_sql('${curr.table}',connection, if_exists='append',index=False)
+        ${cleanup.split('\n').join('\n        ')}`
             } else if (curr.dbtype === 'mssql') {
                 return `        hook = MsSqlHook(
                 mssql_conn_id ='${curr.conn_id}'
@@ -212,7 +240,8 @@ function DownloadAirflow(props) {
         with engine.connect() as connection:
             with connection.begin():
                 ${truncate}
-                df.to_sql('${curr.table}',connection, if_exists='append',index=False)`
+                df.to_sql('${curr.table}',connection, if_exists='append',index=False)
+        ${cleanup.split('\n').join('\n        ')}`
             } else if (curr.dbtype === 'sqlite') {
                 return `        hook = SqliteHook(
                 sqlite_conn_id ='${curr.conn_id}'
@@ -221,7 +250,8 @@ function DownloadAirflow(props) {
         with engine.connect() as connection:
             with connection.begin():
                 ${truncate}
-                df.to_sql('${curr.table}',connection, if_exists='append',index=False)`
+                df.to_sql('${curr.table}',connection, if_exists='append',index=False)
+        ${cleanup.split('\n').join('\n        ')}`
             } else if (curr.dbtype === 'redshift') {
                 return `        hook = RedshiftSQLHook(
                 redshift_conn_id ='${curr.conn_id}'
@@ -230,7 +260,8 @@ function DownloadAirflow(props) {
         with engine.connect() as connection:
             with connection.begin():
                 ${truncate}
-                df.to_sql('${curr.table}',connection, if_exists='append',index=False)`
+                df.to_sql('${curr.table}',connection, if_exists='append',index=False)
+        ${cleanup.split('\n').join('\n        ')}`
         //     } else if (curr.dbtype === 'hdfs') {
         //         return `        hook = HDFSHook(
         //         hdfs_conn_id ='${curr.conn_id}'
@@ -245,10 +276,12 @@ function DownloadAirflow(props) {
                 hive_cli_conn_id ='${curr.conn_id}'
         )
         ${truncate}
-        hook.load_df(df,'${curr.table}')`
+        hook.load_df(df,'${curr.table}')
+${cleanup}`
             }
         } else if (curr.readType === 'delimited') {
-            return `        df.to_csv('${curr.path}',sep='${curr.delimiter}')`
+            return `        df.to_csv('${curr.path}',sep='${curr.delimiter}')
+${cleanup}`
         }
     }
 
@@ -295,6 +328,8 @@ from airflow.models import Variable
 from airflow.operators.bash import BashOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from statistics import variance, stdev, median
+import shutil
+import os
 
 
 with DAG(
@@ -374,6 +409,8 @@ ${load_fn}
                 <Input value={path} onChange={onPathChange}></Input>
                 <label>Schedule Interval: </label><Tooltip title="Use crontab"><a href='https://crontab.guru' target="_blank" rel="noreferrer"><QuestionCircleOutlined /></a></Tooltip>
                 <Input value={schInt} onChange={onSchIntChange}></Input>
+                <label>File Cleanup:</label>
+                <Switch checked={isCleanup} checkedChildren={<CheckOutlined />} unCheckedChildren={<CloseOutlined />} onChange={() => setIsCleanup(!isCleanup)}/><br/>
             </Modal>
         </div>
     );
