@@ -168,7 +168,7 @@ function AddCard(props) {
         <Card className='TransformCard'>
             <img
                 width={50}
-                src="/sum.png"
+                src="/add.png"
                 alt=''
             />
             <br/>
