@@ -11,11 +11,13 @@ function DownloadAirflow(props) {
     const [path, setPath] = useState('');
     const [isCleanup, setIsCleanup] = useState(false);
     const [schInt, setSchInt] = useState('');
+    const [email, setEmail] = useState('');
     let cleanup = '';
 
 
     const processRead = (curr) => {
         console.log('meow')
+        const isEmail = email !== '' ? "True" : "False"
         if (curr.readType === 'database') {
             if (curr.dbtype === 'postgresql') {
                 return `        sql_stmt = f"""${curr.sql}"""
@@ -75,7 +77,9 @@ function DownloadAirflow(props) {
 `
             return `        files = glob.glob('${curr.path}')
         if len(files) == 0:
-            pass
+            if ${isEmail}:
+                send_email(html_content = "Please check path ${curr.path}, unable to find specified file", to=['${email}'], subject="Failed to locate file.")
+            raise Exception("Failed to locate file.")
         files.sort(key=lambda x: -os.path.getmtime(x))
         df = pd.read_csv(files[0],delimiter='${curr.delimiter}')`
         } else if (curr.readType === 'xml') {
@@ -85,7 +89,9 @@ function DownloadAirflow(props) {
 `
             return `        files = glob.glob('${curr.path}')
         if len(files) == 0:
-            pass
+            if ${isEmail}:
+                send_email(html_content = "Please check path ${curr.path}, unable to find specified file", to=['${email}'], subject="Failed to locate file.")
+            raise Exception("Failed to locate file.")
         files.sort(key=lambda x: -os.path.getmtime(x))
         df = pd.read_xml(files[0])`
         } else if (curr.readType === 'json') {
@@ -95,7 +101,9 @@ function DownloadAirflow(props) {
 `
             return `        files = glob.glob('${curr.path}')
         if len(files) == 0:
-            pass
+            if ${isEmail}:
+                send_email(html_content = "Please check path ${curr.path}, unable to find specified file", to=['${email}'], subject="Failed to locate file.")
+            raise Exception("Failed to locate file.")
         files.sort(key=lambda x: -os.path.getmtime(x))
         df = pd.read_json(files[0])`
         } else if (curr.readType === 'fix-width') {
@@ -105,7 +113,9 @@ function DownloadAirflow(props) {
 `
             return `        files = glob.glob('${curr.path}')
         if len(files) == 0:
-            pass
+            if ${isEmail}:
+                send_email(html_content = "Please check path ${curr.path}, unable to find specified file", to=['${email}'], subject="Failed to locate file.")
+            raise Exception("Failed to locate file.")
         files.sort(key=lambda x: -os.path.getmtime(x))
         df = pd.read_fwf(files[0])`
         } else if (curr.readType === 'custom') {
@@ -115,7 +125,9 @@ function DownloadAirflow(props) {
 `
             return `        files = glob.glob('${curr.path}')
         if len(files) == 0:
-            pass
+            if ${isEmail}:
+                send_email(html_content = "Please check path ${curr.path}, unable to find specified file", to=['${email}'], subject="Failed to locate file.")
+            raise Exception("Failed to locate file.")
         files.sort(key=lambda x: -os.path.getmtime(x))
         f = open(files[0], 'r')
         data = StringIO(f.read())
@@ -311,6 +323,7 @@ ${cleanup}`
         let transform_fn = ''
         let load_fn = ''
         const date = new Date();
+        const isEmail = email !== '' ? "True" : "False"
         for (var i = 0; i < stepsArr.length; i++) {
             console.log(stepsArr[i]);
             let curr = stepsArr[i]
@@ -350,10 +363,36 @@ from statistics import variance, stdev, median
 import shutil
 import os
 import glob
+import json
+from airflow.utils.email import send_email
+
+default_args = {
+    'owner': 'Airflow GUI',
+    'depends_on_past': False,
+    'email': ['${email}'],
+    'email_on_failure': ${isEmail},
+    'email_on_retry': False,
+    'retries': 0,
+    # 'retry_delay': timedelta(minutes=5),
+    # 'queue': 'bash_queue',
+    # 'pool': 'backfill',
+    # 'priority_weight': 10,
+    # 'end_date': datetime(2016, 1, 1),
+    # 'wait_for_downstream': False,
+    # 'dag': dag,
+    # 'sla': timedelta(hours=2),
+    # 'execution_timeout': timedelta(seconds=300),
+    # 'on_failure_callback': some_function,
+    # 'on_success_callback': some_other_function,
+    # 'on_retry_callback': another_function,
+    # 'sla_miss_callback': yet_another_function,
+    # 'trigger_rule': 'all_success'
+}
 
 
 with DAG(
     dag_id='test_from_react',
+    default_args=default_args,
     schedule_interval='${schInt}',
     start_date=datetime(year=${date.getFullYear()}, month=${date.getMonth()+1}, day=${date.getDate()}),
     catchup=False
@@ -365,10 +404,18 @@ ${extract_fn}
     def transform():
         df = pd.read_csv('${path.at(-1) !== '/' ? path + '/' : path}raw_data.csv')
 ${transform_fn}        df.to_csv('${path.at(-1) !== '/' ? path + '/' : path}transformed_data.csv')
+        df.dtypes.to_csv('${path.at(-1) !== '/' ? path + '/' : path}dtypes.csv')
         
     
     def load():
-        df = pd.read_csv('${path.at(-1) !== '/' ? path + '/' : path}transformed_data.csv')
+        dt = pd.read_csv('${path.at(-1) !== '/' ? path + '/' : path}dtypes.csv',index_col=0)
+        datatypes = json.loads(dt.to_json())['0']
+        dt_arr = []
+        for key,val in datatypes.copy().items():
+            if 'date' in val:
+                dt_arr.append(key)
+                del datatypes[key]
+        df = pd.read_csv('${path.at(-1) !== '/' ? path + '/' : path}transformed_data.csv',dtype=datatypes, parse_dates=dt_arr)
 ${load_fn}
 
     task_extract = PythonOperator(
@@ -401,6 +448,7 @@ ${load_fn}
 
         document.body.appendChild(element)
         element.click()
+        cleanup=''
     }
 
     const openModal =  () => {
@@ -431,6 +479,8 @@ ${load_fn}
                 <Input value={schInt} onChange={onSchIntChange}></Input>
                 <label>File Cleanup:</label>
                 <Switch checked={isCleanup} checkedChildren={<CheckOutlined />} unCheckedChildren={<CloseOutlined />} onChange={() => setIsCleanup(!isCleanup)}/><br/>
+                <label>Email: </label>
+                <Input value={email} onChange={(e) => setEmail(e.target.value)}></Input>
             </Modal>
         </div>
     );
