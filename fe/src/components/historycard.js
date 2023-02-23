@@ -1,7 +1,7 @@
 import { Alert, Space, Button, message } from 'antd';
 import { useSelector } from 'react-redux'
 import { useDispatch } from 'react-redux'
-import { setAdd, setAggregate, setPython, setRead, setWrite } from '../states/cardModalSlice';
+import { setAdd, setAggregate, setPython, setRead, setWrite, setJoin } from '../states/cardModalSlice';
 import axios from 'axios';
 
 import './components.css';
@@ -108,6 +108,8 @@ function HistoryCard(props) {
           dispatch(setAggregate(true));
         } else if (step['type'] === 'add') {
           dispatch(setAdd(true));
+        } else if (step['type'] === 'join') {
+          dispatch(setJoin(true));
       } 
 
         const newStep = {

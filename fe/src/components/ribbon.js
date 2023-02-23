@@ -6,6 +6,7 @@ import PythonCard from './cards/pythoncard';
 import WriteCard from './cards/writecard';
 import AggregateCard from './cards/aggregatecard';
 import AddCard from './cards/addcard';
+import JoinCard from './cards/joincard';
 
 function Ribbon(props) {
 
@@ -15,6 +16,7 @@ function Ribbon(props) {
         <PythonCard></PythonCard>
         <AggregateCard></AggregateCard>
         <AddCard></AddCard>
+        <JoinCard></JoinCard>
         <WriteCard></WriteCard>
 
         </div>

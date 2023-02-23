@@ -362,6 +362,34 @@ def add(dic, df):
     return df
 
 
+@app.route('/join', methods=['GET', 'POST'])
+def join_transformation():
+    # print('im here')
+    if request.method == 'POST':
+        f = request.get_json()
+        print(f['datatypes'])
+        df = read_internal(f['data'],f['datatypes'])
+
+        # print('hey')
+        ans = join(f['dic'],df)
+        # print(ans)
+        dtype = extract_dtypes(ans)
+        # print(dtype)
+    return { 
+        'data':ans.to_csv(index=False),
+        'datatypes':(dtype),
+    }
+
+def join(dic, df):
+    join_df = read(dic['joinData'],dic)
+    # print(dic)
+    try:
+        ans = df.merge(join_df,how=dic['joinType'],left_on=dic['masterKey'], right_on=dic['secondaryKey'])
+    except:
+        raise JoinError("Please check inputs for join operation")
+
+    return ans
+
 @app.route('/retransform', methods=['GET', 'POST'])
 def retransformation():
     if request.method == 'POST':
@@ -376,6 +404,8 @@ def retransformation():
                 df = agg(step,df)
             if step['type'] == 'add':
                 df = add(step,df)
+            if step['type'] == 'join':
+                df = join(step,df)
     print(df)
     dtype = extract_dtypes(df)
     return { 
@@ -416,3 +446,15 @@ class AggError(werkzeug.exceptions.HTTPException):
 @app.errorhandler(AggError)
 def handle_514(e):
     return e.message, e.code
+
+class JoinError(werkzeug.exceptions.HTTPException):
+    code = 515
+
+    def __init__(self, message):
+        super().__init__()
+        self.message = message
+
+@app.errorhandler(JoinError)
+def handle_515(e):
+    return e.message, e.code
+
