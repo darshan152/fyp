@@ -10,6 +10,7 @@ export const cardModalSlice = createSlice({
         aggregate: false,
         add: false,
         join: false,
+        scale: false,
     }
   },
   reducers: {
@@ -31,10 +32,13 @@ export const cardModalSlice = createSlice({
     setJoin: (state, action) => {
       state.value.join = action.payload
     },
+    setScale: (state, action) => {
+      state.value.scale = action.payload
+    },
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { setRead, setPython, setWrite, setAggregate, setAdd, setJoin } = cardModalSlice.actions
+export const { setRead, setPython, setWrite, setAggregate, setAdd, setJoin, setScale } = cardModalSlice.actions
 
 export default cardModalSlice.reducer

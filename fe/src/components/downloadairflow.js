@@ -218,6 +218,36 @@ function DownloadAirflow(props) {
         return transform_fn
     }
 
+    const processScale = (transform_fn,curr) => {
+        console.log(curr)
+        let rows = curr.rows
+        for (var i = 0; i < rows.length; i++) {
+            if (rows[i]['scale'] === 'MinMaxScaler'){
+                transform_fn = transform_fn + `        sc = MinMaxScaler(feature_range = (${rows[i]['min']},${rows[i]['max']}), clip=${rows[i]['clip'] ? 'True' : 'False'})
+`}
+            else if(rows[i]['scale'] === 'StandardScaler'){
+                transform_fn = transform_fn + `        sc = StandardScaler(with_mean = ${rows[i]['with_mean'] ? 'True' : 'False'}, with_std=${rows[i]['with_std'] ? 'True' : 'False'})
+`}
+            else if ( rows[i]['scale'] === 'MaxAbsScaler'){
+                transform_fn = transform_fn + `        sc = MaxAbsScaler()
+`}
+            else if ( rows[i]['scale'] === 'RobustScaler'){
+                transform_fn = transform_fn + `        sc = RobustScaler(with_centering = ${rows[i]['with_centering'] ? 'True' : 'False'}, with_scaling=${rows[i]['with_scaling'] ? 'True' : 'False'}, unit_variance=${rows[i]['unit_variance'] ? 'True' : 'False'},quantile_range=(${rows[i]['qmin']},${rows[i]['qmax']}))
+`}
+            else if ( rows[i]['scale'] === 'PowerTransformer'){
+                transform_fn = transform_fn + `        sc = PowerTransformer(method = '${rows[i]['method']}', standardize=${rows[i]['standardize'] ? 'True' : 'False'})
+`}
+            else if ( rows[i]['scale'] === 'QuantileTransformer'){
+                transform_fn = transform_fn + `        sc = QuantileTransformer(n_quantiles= ${rows[i]['n_quantiles']}, output_distribution='${rows[i]['output_distribution']}')
+`}
+            transform_fn = transform_fn + `        for col in [${"'" + rows[i]['cols'].join("','") + "'"}]:
+            df[col] = sc.fit_transform(df[[col]])
+`
+
+        }
+        return transform_fn
+    }
+
 
     const processWrite = (curr) => {
         console.log('meow')
@@ -338,6 +368,9 @@ ${cleanup}`
             } else if (curr.type === 'add') {
                 transform_fn = processAdd(transform_fn,curr)
                 console.log(transform_fn)
+            } else if (curr.type === 'scale') {
+                transform_fn = processScale(transform_fn,curr)
+                console.log(transform_fn)
             } else if (curr.type === 'write') {
                 load_fn = processWrite(curr)
             }
@@ -365,6 +398,8 @@ import os
 import glob
 import json
 from airflow.utils.email import send_email
+from sklearn.preprocessing import MinMaxScaler, PowerTransformer, StandardScaler, MaxAbsScaler, RobustScaler, QuantileTransformer
+
 
 default_args = {
     'owner': 'Airflow GUI',

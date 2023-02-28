@@ -15,6 +15,7 @@ from datetime import datetime, timedelta
 import pendulum
 import time
 from random import random
+from sklearn.preprocessing import MinMaxScaler, PowerTransformer, StandardScaler, MaxAbsScaler, RobustScaler, QuantileTransformer
 
 
 app = Flask(__name__)
@@ -390,6 +391,46 @@ def join(dic, df):
 
     return ans
 
+@app.route('/scale', methods=['GET', 'POST'])
+def scale_transformation():
+    # print('im here')
+    if request.method == 'POST':
+        f = request.get_json()
+        print(f['datatypes'])
+        df = read_internal(f['data'],f['datatypes'])
+
+        # print('hey')
+        ans = scale(f['dic'],df)
+        # print(ans)
+        dtype = extract_dtypes(ans)
+        # print(dtype)
+    return { 
+        'data':ans.to_csv(index=False),
+        'datatypes':(dtype),
+    }
+
+def scale(dic, df):
+    print(dic)
+    for row in dic["rows"]:
+        if row["scale"] == 'MinMaxScaler':
+            sc = MinMaxScaler(feature_range = (row['min'],row['max']), clip=row['clip'])
+        elif row["scale"] == 'StandardScaler':
+            sc = StandardScaler(with_mean = row['with_mean'], with_std=row['with_std'])
+        elif row["scale"] == 'MaxAbsScaler':
+            sc = MaxAbsScaler()
+        elif row["scale"] == 'RobustScaler':
+            sc = RobustScaler(with_centering = row['with_centering'], with_scaling=row['with_scaling'], unit_variance=row['unit_variance'],quantile_range=(row['qmin'],row['qmax']))
+        elif row["scale"] == 'PowerTransformer':
+            sc = PowerTransformer(method = row['method'], standardize=row['standardize'])
+        elif row["scale"] == 'QuantileTransformer':
+            sc = QuantileTransformer(n_quantiles= row['n_quantiles'], output_distribution=row['output_distribution'])
+        try:
+            for col in row['cols']:
+                df[col] = sc.fit_transform(df[[col]])
+        except:
+            raise ScaleError('Please Check scaling inputs')
+    return df
+
 @app.route('/retransform', methods=['GET', 'POST'])
 def retransformation():
     if request.method == 'POST':
@@ -406,6 +447,8 @@ def retransformation():
                 df = add(step,df)
             if step['type'] == 'join':
                 df = join(step,df)
+            if step['type'] == 'scale':
+                df = scale(step,df)
     print(df)
     dtype = extract_dtypes(df)
     return { 
@@ -456,5 +499,16 @@ class JoinError(werkzeug.exceptions.HTTPException):
 
 @app.errorhandler(JoinError)
 def handle_515(e):
+    return e.message, e.code
+
+class ScaleError(werkzeug.exceptions.HTTPException):
+    code = 516
+
+    def __init__(self, message):
+        super().__init__()
+        self.message = message
+
+@app.errorhandler(ScaleError)
+def handle_516(e):
     return e.message, e.code
 
