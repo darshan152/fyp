@@ -146,6 +146,7 @@ function AddCard(props) {
       dispatch(editStep(newStepsArr));
       dispatch(setLoading(false))
       dispatch(setAdd(false));
+      setError('')
     }).catch(error => {
       setError(error.response.data)
       dispatch(setLoading(false))
