@@ -217,6 +217,117 @@ function DownloadAirflow(props) {
         }
         return transform_fn
     }
+    const processJoin = (transform_fn,curr) => {
+        const isEmail = email !== '' ? "True" : "False"
+        if (curr.readType === 'database') {
+            if (curr.dbtype === 'postgresql') {
+                transform_fn = transform_fn + `        sql_stmt = f"""${curr.sql}"""
+        pg_hook = PostgresHook(
+            postgres_conn_id='${curr.conn_id}'
+        )
+        pg_conn = pg_hook.get_conn()
+        # cursor = pg_conn.cursor()
+        # cursor.execute(sql_stmt)
+        # print(cursor.fetchall())
+        join_df = pd.read_sql_query(sql_stmt, pg_conn)
+`
+            } else if (curr.dbtype === 'mysql+pymysql') {
+                transform_fn = transform_fn + `        sql_stmt = f"""${curr.sql}"""
+        hook = MySqlHook(
+            mysql_conn_id='${curr.conn_id}'
+        )
+        conn = hook.get_conn()
+        # cursor = pg_conn.cursor()
+        # cursor.execute(sql_stmt)
+        # print(cursor.fetchall())
+        join_df = pd.read_sql_query(sql_stmt, conn)
+`
+            } else if (curr.dbtype === 'oracle') {
+                transform_fn = transform_fn + `        sql_stmt = f"""${curr.sql}"""
+        hook = OracleHook(
+            oracle_conn_id ='${curr.conn_id}'
+        )
+        conn = hook.get_conn()
+        # cursor = pg_conn.cursor()
+        # cursor.execute(sql_stmt)
+        # print(cursor.fetchall())
+        join_df = pd.read_sql_query(sql_stmt, conn)
+`
+            } else if (curr.dbtype === 'mssql') {
+                transform_fn = transform_fn + `        sql_stmt = f"""${curr.sql}"""
+        hook = MsSqlHook(
+            mssql_conn_id ='${curr.conn_id}'
+        )
+        conn = hook.get_conn()
+        # cursor = pg_conn.cursor()
+        # cursor.execute(sql_stmt)
+        # print(cursor.fetchall())
+        join_df = pd.read_sql_query(sql_stmt, conn)
+`
+            } else if (curr.dbtype === 'sqlite') {
+                transform_fn = transform_fn + `        sql_stmt = f"""${curr.sql}"""
+        hook = SqliteHook(
+            sqlite_conn_id ='${curr.conn_id}'
+        )
+        conn = hook.get_conn()
+        # cursor = pg_conn.cursor()
+        # cursor.execute(sql_stmt)
+        # print(cursor.fetchall())
+        join_df = pd.read_sql_query(sql_stmt, conn)
+`
+            }
+        } else if (curr.readType === 'delimited') {
+            transform_fn = transform_fn + `        files = glob.glob('${curr.path}')
+        if len(files) == 0:
+            if ${isEmail}:
+                send_email(html_content = "Please check path ${curr.path}, unable to find specified file", to=['${email}'], subject="Failed to locate file.")
+            raise Exception("Failed to locate file.")
+        files.sort(key=lambda x: -os.path.getmtime(x))
+        join_df = pd.read_csv(files[0],delimiter='${curr.delimiter}')
+`
+        } else if (curr.readType === 'xml') {
+            transform_fn = transform_fn + `        files = glob.glob('${curr.path}')
+        if len(files) == 0:
+            if ${isEmail}:
+                send_email(html_content = "Please check path ${curr.path}, unable to find specified file", to=['${email}'], subject="Failed to locate file.")
+            raise Exception("Failed to locate file.")
+        files.sort(key=lambda x: -os.path.getmtime(x))
+        join_df = pd.read_xml(files[0])
+`
+        } else if (curr.readType === 'json') {
+            transform_fn = transform_fn + `        files = glob.glob('${curr.path}')
+        if len(files) == 0:
+            if ${isEmail}:
+                send_email(html_content = "Please check path ${curr.path}, unable to find specified file", to=['${email}'], subject="Failed to locate file.")
+            raise Exception("Failed to locate file.")
+        files.sort(key=lambda x: -os.path.getmtime(x))
+        join_df = pd.read_json(files[0])
+`
+        } else if (curr.readType === 'fix-width') {
+            transform_fn = transform_fn + `        files = glob.glob('${curr.path}')
+        if len(files) == 0:
+            if ${isEmail}:
+                send_email(html_content = "Please check path ${curr.path}, unable to find specified file", to=['${email}'], subject="Failed to locate file.")
+            raise Exception("Failed to locate file.")
+        files.sort(key=lambda x: -os.path.getmtime(x))
+        join_df = pd.read_fwf(files[0])
+`
+        } else if (curr.readType === 'custom') {
+            transform_fn = transform_fn + `        files = glob.glob('${curr.path}')
+        if len(files) == 0:
+            if ${isEmail}:
+                send_email(html_content = "Please check path ${curr.path}, unable to find specified file", to=['${email}'], subject="Failed to locate file.")
+            raise Exception("Failed to locate file.")
+        files.sort(key=lambda x: -os.path.getmtime(x))
+        f = open(files[0], 'r')
+        data = StringIO(f.read())
+        ${curr.code.split('\n').join('\n        ')}
+`
+        }
+        transform_fn = transform_fn + `        df = df.merge(join_df,how='${curr['joinType']}',left_on='${curr['masterKey']}', right_on='${curr['secondaryKey']}')
+`
+        return transform_fn
+    }
 
     const processScale = (transform_fn,curr) => {
         console.log(curr)
@@ -367,6 +478,9 @@ ${cleanup}`
                 console.log(transform_fn)
             } else if (curr.type === 'add') {
                 transform_fn = processAdd(transform_fn,curr)
+                console.log(transform_fn)
+            } else if (curr.type === 'join') {
+                transform_fn = processJoin(transform_fn,curr)
                 console.log(transform_fn)
             } else if (curr.type === 'scale') {
                 transform_fn = processScale(transform_fn,curr)
