@@ -8,6 +8,7 @@ import AggregateCard from './cards/aggregatecard';
 import AddCard from './cards/addcard';
 import JoinCard from './cards/joincard';
 import ScaleCard from './cards/scalecard';
+import MissingCard from './cards/missingcard';
 
 function Ribbon(props) {
 
@@ -19,6 +20,7 @@ function Ribbon(props) {
         <AddCard></AddCard>
         <JoinCard></JoinCard>
         <ScaleCard></ScaleCard>
+        <MissingCard></MissingCard>
         <WriteCard></WriteCard>
 
 

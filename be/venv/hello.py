@@ -16,6 +16,8 @@ import pendulum
 import time
 from random import random
 from sklearn.preprocessing import MinMaxScaler, PowerTransformer, StandardScaler, MaxAbsScaler, RobustScaler, QuantileTransformer
+from sklearn.impute import SimpleImputer,KNNImputer
+from sklearn.linear_model import LinearRegression
 
 
 app = Flask(__name__)
@@ -431,6 +433,100 @@ def scale(dic, df):
             raise ScaleError('Please Check scaling inputs')
     return df
 
+
+@app.route('/missing', methods=['GET', 'POST'])
+def missing_transformation():
+    # print('im here')
+    if request.method == 'POST':
+        f = request.get_json()
+        print(f['datatypes'])
+        df = read_internal(f['data'],f['datatypes'])
+
+        # print('hey')
+        ans = missing(f['dic'],df)
+        # print(ans)
+        dtype = extract_dtypes(ans)
+        # print(dtype)
+    return { 
+        'data':ans.to_csv(index=False),
+        'datatypes':(dtype),
+    }
+
+def missing(dic, df):
+    print(dic)
+    for row in dic["rows"]:
+        print(row)
+        try:
+            row['method']
+            row['col']
+        except:
+            raise MissingError("Please check your inputs")
+        if row["method"] == 'Delete':
+                df = df[df[row["col"]].isna()==False]
+        elif row["method"] == 'Impute':
+            try:
+                row['imputeType']
+            except:
+                raise MissingError("Please check your inputs")
+            if row['imputeType'] == "mean":
+                imp = SimpleImputer(strategy='mean')
+                try:
+                    df[row["col"]] = imp.fit_transform(df[[row["col"]]])
+                except:
+                    raise MissingError('Something went wrong! We are unable to apply this impute type.')
+            elif row['imputeType'] == "median":
+                imp = SimpleImputer(strategy='median')
+                try:
+                    df[row["col"]] = imp.fit_transform(df[[row["col"]]])
+                except:
+                    raise MissingError('Something went wrong! We are unable to apply this impute type.')
+            elif row['imputeType'] == "mode":
+                imp = SimpleImputer(strategy='most_frequent')
+                try: 
+                    df[row["col"]] = imp.fit_transform(df[[row["col"]]])
+                except:
+                    raise MissingError('Something went wrong! We are unable to apply this impute type.')
+            elif row['imputeType'] == "custom":
+                try:
+                    df[row["col"]] = df[row["col"]].fillna(row['custom'])
+                except:
+                    raise MissingError("Please check your inputs")
+            elif row['imputeType'] == "knn":
+                try: 
+                    cols = row["imp_cols"]
+                    cols.append(row['col'])
+                    sc = KNNImputer(add_indicator=row['add_ind'], weights=row['weights'], n_neighbors=row['n_neighbors'])
+                except:
+                    raise MissingError("Please check your inputs")
+                try:
+                    a = sc.fit_transform(X=df[cols])
+                    df[row["col"]] = pd.DataFrame(a, columns=cols)[[row["col"]]].iloc[:,0]
+                except:
+                    raise MissingError('Something went wrong! We are unable to apply this impute type.')
+            elif row['imputeType'] == "linreg":
+                try:
+                    cols = row["imp_cols"]
+                    lr = LinearRegression()
+                    testdf = df[df[row["col"]].isnull()==True]
+                    traindf = df[df[row["col"]].isnull()==False]
+                    y = traindf[row["col"]]
+                except:
+                    raise MissingError("Please check your inputs")
+                try: 
+                    lr.fit(traindf[cols],y)
+                    pred = lr.predict(testdf[cols])
+                    testdf[row["col"]]= pred
+                    df = pd.concat([traindf,testdf])
+                except:
+                    raise MissingError('Something went wrong! We are unable to apply this impute type.')
+        elif row["method"] == 'Indicator':
+            try:
+                df[row["col_name"]] = df[row["col"]].isna().astype(float)
+            except:
+                raise MissingError("Please check your inputs")
+        
+    return df
+
 @app.route('/retransform', methods=['GET', 'POST'])
 def retransformation():
     if request.method == 'POST':
@@ -449,6 +545,8 @@ def retransformation():
                 df = join(step,df)
             if step['type'] == 'scale':
                 df = scale(step,df)
+            if step['type'] == 'missing':
+                df = missing(step,df)
     print(df)
     dtype = extract_dtypes(df)
     return { 
@@ -511,4 +609,16 @@ class ScaleError(werkzeug.exceptions.HTTPException):
 @app.errorhandler(ScaleError)
 def handle_516(e):
     return e.message, e.code
+
+class MissingError(werkzeug.exceptions.HTTPException):
+    code = 517
+
+    def __init__(self, message):
+        super().__init__()
+        self.message = message
+
+@app.errorhandler(MissingError)
+def handle_517(e):
+    return e.message, e.code
+
 
