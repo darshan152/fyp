@@ -512,12 +512,15 @@ def missing(dic, df):
                     y = traindf[row["col"]]
                 except:
                     raise MissingError("Please check your inputs")
+                if testdf.shape[0] == 0 or traindf.shape[0] == 0:
+                    raise MissingError("Chosen column to impute is either empty or has no missing values")
                 try: 
                     lr.fit(traindf[cols],y)
                     pred = lr.predict(testdf[cols])
                     testdf[row["col"]]= pred
                     df = pd.concat([traindf,testdf])
-                except:
+                except Exception as e:
+                    print(e)
                     raise MissingError('Something went wrong! We are unable to apply this impute type.')
         elif row["method"] == 'Indicator':
             try:
@@ -525,6 +528,32 @@ def missing(dic, df):
             except:
                 raise MissingError("Please check your inputs")
         
+    return df
+
+
+@app.route('/delete', methods=['GET', 'POST'])
+def delete_transformation():
+    # print('im here')
+    if request.method == 'POST':
+        f = request.get_json()
+        print(f['datatypes'])
+        df = read_internal(f['data'],f['datatypes'])
+
+        # print('hey')
+        ans = delete(f['dic'],df)
+        # print(ans)
+        dtype = extract_dtypes(ans)
+        # print(dtype)
+    return { 
+        'data':ans.to_csv(index=False),
+        'datatypes':(dtype),
+    }
+
+def delete(dic, df):
+    try:
+        df = df.drop(list(dic['cols']),axis=1)
+    except:
+        raise DeleteError("Please check your inputs")
     return df
 
 @app.route('/retransform', methods=['GET', 'POST'])
@@ -547,6 +576,8 @@ def retransformation():
                 df = scale(step,df)
             if step['type'] == 'missing':
                 df = missing(step,df)
+            if step['type'] == 'delete':
+                df = delete(step,df)
     print(df)
     dtype = extract_dtypes(df)
     return { 
@@ -619,6 +650,17 @@ class MissingError(werkzeug.exceptions.HTTPException):
 
 @app.errorhandler(MissingError)
 def handle_517(e):
+    return e.message, e.code
+
+class DeleteError(werkzeug.exceptions.HTTPException):
+    code = 518
+
+    def __init__(self, message):
+        super().__init__()
+        self.message = message
+
+@app.errorhandler(DeleteError)
+def handle_518(e):
     return e.message, e.code
 
 

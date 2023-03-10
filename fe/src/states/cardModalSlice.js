@@ -12,6 +12,8 @@ export const cardModalSlice = createSlice({
         join: false,
         scale: false,
         missing: false,
+        delete: false,
+        filter: false,
     }
   },
   reducers: {
@@ -39,10 +41,16 @@ export const cardModalSlice = createSlice({
     setMissing: (state, action) => {
       state.value.missing = action.payload
     },
+    setDelete: (state, action) => {
+      state.value.delete = action.payload
+    },
+    setFilter: (state, action) => {
+      state.value.filter = action.payload
+    },
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { setRead, setPython, setWrite, setAggregate, setAdd, setJoin, setScale, setMissing } = cardModalSlice.actions
+export const { setRead, setPython, setWrite, setAggregate, setAdd, setJoin, setScale, setMissing, setDelete, setFilter } = cardModalSlice.actions
 
 export default cardModalSlice.reducer

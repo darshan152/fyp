@@ -359,6 +359,12 @@ function DownloadAirflow(props) {
         return transform_fn
     }
 
+    const processDelete = (transform_fn,curr) => {
+         transform_fn = transform_fn + `        df = df.drop([${"'" + curr['cols'].join("','") + "'"}]),axis=1)
+`
+        return transform_fn
+    }
+
 
     const processWrite = (curr) => {
         console.log('meow')
@@ -485,6 +491,9 @@ ${cleanup}`
             } else if (curr.type === 'scale') {
                 transform_fn = processScale(transform_fn,curr)
                 console.log(transform_fn)
+            } else if (curr.type === 'delete') {
+                transform_fn = processDelete(transform_fn,curr)
+                console.log(transform_fn)
             } else if (curr.type === 'write') {
                 load_fn = processWrite(curr)
             }
@@ -513,6 +522,8 @@ import glob
 import json
 from airflow.utils.email import send_email
 from sklearn.preprocessing import MinMaxScaler, PowerTransformer, StandardScaler, MaxAbsScaler, RobustScaler, QuantileTransformer
+from sklearn.impute import SimpleImputer,KNNImputer
+from sklearn.linear_model import LinearRegression
 
 
 default_args = {

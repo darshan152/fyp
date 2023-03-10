@@ -9,6 +9,8 @@ import AddCard from './cards/addcard';
 import JoinCard from './cards/joincard';
 import ScaleCard from './cards/scalecard';
 import MissingCard from './cards/missingcard';
+import DeleteCard from './cards/deletecard';
+import FilterCard from './cards/filtercard';
 
 function Ribbon(props) {
 
@@ -21,6 +23,7 @@ function Ribbon(props) {
         <JoinCard></JoinCard>
         <ScaleCard></ScaleCard>
         <MissingCard></MissingCard>
+        <DeleteCard></DeleteCard>
         <WriteCard></WriteCard>
 
 
