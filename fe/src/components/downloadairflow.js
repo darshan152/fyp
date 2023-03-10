@@ -359,6 +359,53 @@ function DownloadAirflow(props) {
         return transform_fn
     }
 
+    const processMissing = (transform_fn,curr) => {
+        console.log(curr)
+        let rows = curr.rows
+        for (var i = 0; i < rows.length; i++) {
+            if (rows[i]['method'] === 'Delete'){
+                transform_fn = transform_fn + `        df = df[df['${rows[i]['col']}'].isna()==False]
+`}
+            else if (rows[i]['method'] === 'Impute') {
+                if (rows[i]['imputeType'] === 'mean' || rows[i]['imputeType'] === 'median') {
+                    transform_fn = transform_fn + `        imp = SimpleImputer(strategy='${rows[i]['imputeType']}')
+        df['${rows[i]['col']}'] = imp.fit_transform(df[['${rows[i]['col']}']])
+`}
+                else if (rows[i]['imputeType'] === 'mode') {
+                    transform_fn = transform_fn + `        imp = SimpleImputer(strategy='most_frequent')
+        df['${rows[i]['col']}'] = imp.fit_transform(df[['${rows[i]['col']}']])
+`}
+            
+                else if (rows[i]['imputeType'] === 'custom') {
+                    transform_fn = transform_fn + `        df['${rows[i]['col']}'] = df['${rows[i]['col']}'].fillna('${rows[i]['custom']}')
+`}
+                else if (rows[i]['imputeType'] === 'knn') {
+                    transform_fn = transform_fn + `        cols = [${"'" + rows[i]['imp_cols'].join("','") + "'"}]
+        cols.append('${rows[i]['col']}')
+        sc = KNNImputer(add_indicator=${rows[i]['add_ind'] ? 'True' : 'False'}, weights='${rows[i]['weights']}', n_neighbors=${rows[i]['n_neighbors']})
+        a = sc.fit_transform(X=df[cols])
+        df['${rows[i]['col']}'] = pd.DataFrame(a, columns=cols)[['${rows[i]['col']}']].iloc[:,0]
+`}
+                else if (rows[i]['imputeType'] === 'linreg') {
+                    transform_fn = transform_fn + `        cols = [${"'" + rows[i]['imp_cols'].join("','") + "'"}]
+        lr = LinearRegression()
+        testdf = df[df['${rows[i]['col']}'].isnull()==True]
+        traindf = df[df['${rows[i]['col']}'].isnull()==False]
+        y = traindf['${rows[i]['col']}']
+        lr.fit(traindf[cols],y)
+        pred = lr.predict(testdf[cols])
+        testdf['${rows[i]['col']}']= pred
+        df = pd.concat([traindf,testdf])
+`}
+                }
+            else if (rows[i]['method'] === 'Indicator') {
+                transform_fn = transform_fn + `        df['${rows[i]['col_name']}'] = df['${rows[i]['col']}'].isna().astype(float)
+`}
+        }
+        return transform_fn
+
+    }
+
     const processDelete = (transform_fn,curr) => {
          transform_fn = transform_fn + `        df = df.drop([${"'" + curr['cols'].join("','") + "'"}]),axis=1)
 `
@@ -490,6 +537,9 @@ ${cleanup}`
                 console.log(transform_fn)
             } else if (curr.type === 'scale') {
                 transform_fn = processScale(transform_fn,curr)
+                console.log(transform_fn)
+            } else if (curr.type === 'missing') {
+                transform_fn = processMissing(transform_fn,curr)
                 console.log(transform_fn)
             } else if (curr.type === 'delete') {
                 transform_fn = processDelete(transform_fn,curr)
