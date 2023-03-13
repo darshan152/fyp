@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 import pendulum
 import time
 from random import random
-from sklearn.preprocessing import MinMaxScaler, PowerTransformer, StandardScaler, MaxAbsScaler, RobustScaler, QuantileTransformer
+from sklearn.preprocessing import MinMaxScaler, PowerTransformer, StandardScaler, MaxAbsScaler, RobustScaler, QuantileTransformer, KBinsDiscretizer, LabelBinarizer, OrdinalEncoder, Binarizer, LabelEncoder
 from sklearn.impute import SimpleImputer,KNNImputer
 from sklearn.linear_model import LinearRegression
 
@@ -582,6 +582,68 @@ def filter(dic, df):
         raise FilterError("Please check your query")
     return df
 
+@app.route('/encode', methods=['GET', 'POST'])
+def encode_transformation():
+    # print('im here')
+    if request.method == 'POST':
+        f = request.get_json()
+        print(f['datatypes'])
+        df = read_internal(f['data'],f['datatypes'])
+
+        # print('hey')
+        ans = encode(f['dic'],df)
+        # print(ans)
+        dtype = extract_dtypes(ans)
+        # print(dtype)
+    return { 
+        'data':ans.to_csv(index=False),
+        'datatypes':(dtype),
+    }
+
+def encode(dic, df):
+    for row in dic["rows"]:
+        try:
+            row['method']
+        except:
+            raise EncodeError('Please check your inputs')
+        if row['method'] == 'KBinsDiscretizer':
+            if row['n_bins'] == '':
+                raise EncodeError('Please check your inputs')
+            try:
+                enc = KBinsDiscretizer(encode='ordinal', n_bins=row['n_bins'], strategy=row['strategy'])
+                df[row['col']] = enc.fit_transform(df[[row['col']]])
+            except:
+                raise EncodeError(f'Column {row["col"]} was not able to be transformed with KBinsDiscretizer. Please change your input column or method')
+        elif row['method'] == 'LabelBinarizer':
+            try:
+                enc = LabelBinarizer()
+                trf = enc.fit_transform(df[[row['col']]])
+                for i in range(len(enc.classes_)):
+                    df[row['col']+ '_' +str(enc.classes_[i])] = trf[:, i]
+            except:
+                raise EncodeError(f'Column {row["col"]} was not able to be transformed with LabelBinarizer. Please change your input column or method')
+        elif row['method'] == 'OrdinalEncoder':
+            try:
+                enc = OrdinalEncoder()
+                df[row['col']] = enc.fit_transform(df[[row['col']]])
+            except:
+                raise EncodeError(f'Column {row["col"]} was not able to be transformed with OrdinalEncoder. Please change your input column or method')
+        elif row['method'] == 'Binarizer':
+            if row['threshold'] == '':
+                raise EncodeError('Please check your inputs')
+            try:
+                enc = Binarizer(threshold = row['threshold'])
+                df[row['col']] = enc.fit_transform(df[[row['col']]])
+            except:
+                raise EncodeError(f'Column {row["col"]} was not able to be transformed with Binarizer. Please change your input column or method')
+        elif row['method'] == 'LabelEncoder':
+            try:
+                enc = LabelEncoder()
+                df[row['col']] = enc.fit_transform(df[row['col']])
+            except:
+                raise EncodeError(f'Column {row["col"]} was not able to be transformed with LabelEncoder. Please change your input column or method')
+    return df
+
 @app.route('/retransform', methods=['GET', 'POST'])
 def retransformation():
     if request.method == 'POST':
@@ -606,6 +668,8 @@ def retransformation():
                 df = delete(step,df)
             if step['type'] == 'filter':
                 df = filter(step,df)
+            if step['type'] == "encode":
+                df = encode(step,df)
     print(df)
     dtype = extract_dtypes(df)
     return { 
@@ -700,6 +764,17 @@ class FilterError(werkzeug.exceptions.HTTPException):
 
 @app.errorhandler(FilterError)
 def handle_519(e):
+    return e.message, e.code
+
+class EncodeError(werkzeug.exceptions.HTTPException):
+    code = 520
+
+    def __init__(self, message):
+        super().__init__()
+        self.message = message
+
+@app.errorhandler(EncodeError)
+def handle_520(e):
     return e.message, e.code
 
 

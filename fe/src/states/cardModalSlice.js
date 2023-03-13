@@ -14,6 +14,7 @@ export const cardModalSlice = createSlice({
         missing: false,
         delete: false,
         filter: false,
+        encode: false,
     }
   },
   reducers: {
@@ -47,10 +48,13 @@ export const cardModalSlice = createSlice({
     setFilter: (state, action) => {
       state.value.filter = action.payload
     },
+    setEncode: (state, action) => {
+      state.value.encode = action.payload
+    },
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { setRead, setPython, setWrite, setAggregate, setAdd, setJoin, setScale, setMissing, setDelete, setFilter } = cardModalSlice.actions
+export const { setRead, setPython, setWrite, setAggregate, setAdd, setJoin, setScale, setMissing, setDelete, setFilter, setEncode } = cardModalSlice.actions
 
 export default cardModalSlice.reducer

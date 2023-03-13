@@ -11,6 +11,7 @@ import ScaleCard from './cards/scalecard';
 import MissingCard from './cards/missingcard';
 import DeleteCard from './cards/deletecard';
 import FilterCard from './cards/filtercard';
+import EncodeCard from './cards/encodecard';
 
 function Ribbon(props) {
 
@@ -25,6 +26,7 @@ function Ribbon(props) {
         <MissingCard></MissingCard>
         <DeleteCard></DeleteCard>
         <FilterCard></FilterCard>
+        <EncodeCard></EncodeCard>
         <WriteCard></WriteCard>
 
 
