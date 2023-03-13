@@ -412,6 +412,12 @@ function DownloadAirflow(props) {
         return transform_fn
     }
 
+    const processFilter = (transform_fn,curr) => {
+        transform_fn = transform_fn + `        df = df.query('${curr['query']}')
+`
+       return transform_fn
+   }
+
 
     const processWrite = (curr) => {
         console.log('meow')
@@ -543,6 +549,9 @@ ${cleanup}`
                 console.log(transform_fn)
             } else if (curr.type === 'delete') {
                 transform_fn = processDelete(transform_fn,curr)
+                console.log(transform_fn)
+            } else if (curr.type === 'filter') {
+                transform_fn = processFilter(transform_fn,curr)
                 console.log(transform_fn)
             } else if (curr.type === 'write') {
                 load_fn = processWrite(curr)

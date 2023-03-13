@@ -24,6 +24,7 @@ function Ribbon(props) {
         <ScaleCard></ScaleCard>
         <MissingCard></MissingCard>
         <DeleteCard></DeleteCard>
+        <FilterCard></FilterCard>
         <WriteCard></WriteCard>
 
 

@@ -4,17 +4,17 @@ import '../components.css';
 import { useSelector, useDispatch } from 'react-redux'
 import { addStep, editStep } from '../../states/stepsArrSlice'
 import { setCurrentData, setDataTypes, setLoading } from '../../states/csvDataSlice';
-import { setDelete } from '../../states/cardModalSlice';
+import { setFilter } from '../../states/cardModalSlice';
 import axios from 'axios';
 import { setEditData, resetEditData } from '../../states/editDataSlice';
-import DeleteModal from '../modals/deletemodal';
+import FilterModal from '../modals/filtermodal';
 
 
 
-function DeleteCard(props) {
+function FilterCard(props) {
   const currentData = useSelector(state => state.csvData.value.currentData)
   const originalData = useSelector(state => state.csvData.value.originalData)
-  const isModalOpen = useSelector(state => state.cardModal.value.delete)
+  const isModalOpen = useSelector(state => state.cardModal.value.filter)
   const oldDic = useSelector(state => state.editData.value.dic)
   const isEdit = useSelector(state => state.editData.value.isEdit)
   const stepsArr = useSelector(state => state.stepsArr.value)
@@ -23,7 +23,7 @@ function DeleteCard(props) {
   const dispatch = useDispatch()
   const hasWrite = stepsArr.length !== 0 && stepsArr.at(-1).type === 'write'
 
-  const EMPTYDIC = {type:'delete', datatypes:datatypes}
+  const EMPTYDIC = {type:'filter', datatypes:datatypes}
 
   const [error, setError] = useState("");
   const [dic, setDic] = useState(EMPTYDIC);
@@ -49,14 +49,14 @@ function DeleteCard(props) {
       newDic['datatypes'] = datatypes
       setDic(newDic)
       if (!isLoading && !hasWrite) {
-        dispatch(setDelete(true));
+        dispatch(setFilter(true));
         console.log('Opening Modal')
       }
     };
   
     const handleOk = () => {
       dispatch(setLoading(true))
-      axios.post(`${process.env.REACT_APP_BACKEND_URL}/delete`, {data:currentData,datatypes:datatypes,dic:dic})
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/filter`, {data:currentData,datatypes:datatypes,dic:dic})
       .then(res => {
         console.log(res.data)
         dispatch(addStep(dic));
@@ -64,7 +64,7 @@ function DeleteCard(props) {
         dispatch(setDataTypes(res.data.datatypes));
         dispatch(setLoading(false))
         setError('')
-        dispatch(setDelete(false));
+        dispatch(setFilter(false));
         setDic(EMPTYDIC)
       }).catch(error => {
         setError(error.response.data)
@@ -86,7 +86,7 @@ function DeleteCard(props) {
       dispatch(resetEditData());
       dispatch(editStep(newStepsArr));
       dispatch(setLoading(false))
-      dispatch(setDelete(false));
+      dispatch(setFilter(false));
       setError('')
     }).catch(error => {
       setError(error.response.data)
@@ -97,7 +97,7 @@ function DeleteCard(props) {
   };
   
     const handleCancel = () => {
-      dispatch(setDelete(false));
+      dispatch(setFilter(false));
       console.log('Modal Cancel')
       setError('')
       dispatch(resetEditData())
@@ -110,21 +110,21 @@ function DeleteCard(props) {
         <Card className='TransformCard'>
             <img
                 width={50}
-                src="/delete.png"
+                src="/filter.png"
                 alt=''
             />
             <br/>
-            <p className='cardTest'>Delete</p>
+            <p className='cardTest'>Filter</p>
         </Card>
         </div>
         { !isEdit ? 
-        <DeleteModal isModalOpen={isModalOpen} handleCancel={handleCancel} handleChange={handleChange} handleOk={handleOk} error={error} dic={dic}  />
+        <FilterModal isModalOpen={isModalOpen} handleCancel={handleCancel} handleChange={handleChange} handleOk={handleOk} error={error} dic={dic}  />
         : 
-        <DeleteModal isModalOpen={isModalOpen} handleCancel={handleCancel} handleChange={handleChangeEdit} handleOk={handleOkEdit} error={error} dic={oldDic} />
+        <FilterModal isModalOpen={isModalOpen} handleCancel={handleCancel} handleChange={handleChangeEdit} handleOk={handleOkEdit} error={error} dic={oldDic} />
         }
         
         </div>
     );
   }
 
-export default DeleteCard;
+export default FilterCard;

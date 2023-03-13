@@ -556,6 +556,32 @@ def delete(dic, df):
         raise DeleteError("Please check your inputs")
     return df
 
+@app.route('/filter', methods=['GET', 'POST'])
+def filter_transformation():
+    # print('im here')
+    if request.method == 'POST':
+        f = request.get_json()
+        print(f['datatypes'])
+        df = read_internal(f['data'],f['datatypes'])
+
+        # print('hey')
+        ans = filter(f['dic'],df)
+        # print(ans)
+        dtype = extract_dtypes(ans)
+        # print(dtype)
+    return { 
+        'data':ans.to_csv(index=False),
+        'datatypes':(dtype),
+    }
+
+def filter(dic, df):
+    try:
+        df = df.query(dic['query'])
+    except Exception as e:
+        print(e)
+        raise FilterError("Please check your query")
+    return df
+
 @app.route('/retransform', methods=['GET', 'POST'])
 def retransformation():
     if request.method == 'POST':
@@ -578,6 +604,8 @@ def retransformation():
                 df = missing(step,df)
             if step['type'] == 'delete':
                 df = delete(step,df)
+            if step['type'] == 'filter':
+                df = filter(step,df)
     print(df)
     dtype = extract_dtypes(df)
     return { 
@@ -661,6 +689,17 @@ class DeleteError(werkzeug.exceptions.HTTPException):
 
 @app.errorhandler(DeleteError)
 def handle_518(e):
+    return e.message, e.code
+
+class FilterError(werkzeug.exceptions.HTTPException):
+    code = 519
+
+    def __init__(self, message):
+        super().__init__()
+        self.message = message
+
+@app.errorhandler(FilterError)
+def handle_519(e):
     return e.message, e.code
 
 
