@@ -268,7 +268,17 @@ def agg(dic, df):
             ans = df.groupby(dic['groupby']).agg(agg).reset_index()
         else:
             ans = df.agg(agg).reset_index()
-        ans.columns = ans.columns.map(lambda x: ' '.join(x) if type(x)!=str else x)
+        cols = []
+        for col in ans.columns:
+            name = ''
+            for i in col:
+                if i != '':
+                    if name != '':
+                        name += ' '
+                    name += i
+            cols.append(name)
+
+        ans.columns = cols        
         return ans
     except Exception as e:
         print('Aggregation failed.')
@@ -385,7 +395,6 @@ def join_transformation():
 
 def join(dic, df):
     join_df = read(dic['joinData'],dic)
-    # print(dic)
     try:
         ans = df.merge(join_df,how=dic['joinType'],left_on=dic['masterKey'], right_on=dic['secondaryKey'])
     except:
