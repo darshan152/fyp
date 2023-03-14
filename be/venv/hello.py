@@ -644,6 +644,40 @@ def encode(dic, df):
                 raise EncodeError(f'Column {row["col"]} was not able to be transformed with LabelEncoder. Please change your input column or method')
     return df
 
+
+@app.route('/datatype', methods=['GET', 'POST'])
+def datatype_transformation():
+    # print('im here')
+    if request.method == 'POST':
+        f = request.get_json()
+        print(f['datatypes'])
+        df = read_internal(f['data'],f['datatypes'])
+
+        # print('hey')
+        ans = datatype(f['dic'],df)
+        # print(ans)
+        dtype = extract_dtypes(ans)
+        # print(dtype)
+    return { 
+        'data':ans.to_csv(index=False),
+        'datatypes':(dtype),
+    }
+
+def datatype(dic, df):
+    for row in dic["rows"]:
+        try: 
+            row['cols']
+            row['dtype']
+        except:
+            raise DatatypeError("Please check your inputs")
+        for col in row['cols']:
+            try:
+                df[col] = df[col].astype(row['dtype'])
+            except:
+                raise DatatypeError(f"Unable to convert {col} to {row['dtype']} datatype")
+        
+    return df
+
 @app.route('/retransform', methods=['GET', 'POST'])
 def retransformation():
     if request.method == 'POST':
@@ -670,6 +704,8 @@ def retransformation():
                 df = filter(step,df)
             if step['type'] == "encode":
                 df = encode(step,df)
+            if step['type'] == "datatype":
+                df = datatype(step,df)
     print(df)
     dtype = extract_dtypes(df)
     return { 
@@ -776,5 +812,17 @@ class EncodeError(werkzeug.exceptions.HTTPException):
 @app.errorhandler(EncodeError)
 def handle_520(e):
     return e.message, e.code
+
+class DatatypeError(werkzeug.exceptions.HTTPException):
+    code = 521
+
+    def __init__(self, message):
+        super().__init__()
+        self.message = message
+
+@app.errorhandler(DatatypeError)
+def handle_521(e):
+    return e.message, e.code
+
 
 
