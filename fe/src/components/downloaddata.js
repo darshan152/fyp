@@ -21,7 +21,7 @@ function DownloadData(props) {
         element.click()
     }
     return(
-        <div>
+        <div style={{'display':'inline-block'}}>
             <Button id='csvDownload' type='primary' onClick={downloadCsv} value='download' shape='round' icon={<DownloadOutlined />}>Download</Button>
         </div>
     );

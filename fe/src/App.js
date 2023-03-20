@@ -17,7 +17,7 @@ function App() {
         <Header>
           <Ribbon></Ribbon>
         </Header>
-        <Layout>
+        <Layout style={{"maxWidth":"100%", "overflowX":"hidden"}}>
           <Content>
             <DataDisplay></DataDisplay>
           </Content>

@@ -40,7 +40,7 @@ function DataDisplay(props) {
             <Table 
             className='datatable' 
             dataSource={parsedData.data} 
-            pagination={{ pageSize: 25 }}
+            pagination={true}
             loading = {loading }
             scroll={{
             x: true,

@@ -22,19 +22,18 @@ function ScaleCard(props) {
   const isLoading = useSelector(state => state.csvData.value.loading)
   const dispatch = useDispatch()
   const hasWrite = stepsArr.length !== 0 && stepsArr.at(-1).type === 'write'
-
-  const EMPTYDIC = {rows:[], type:'scale', datatypes:datatypes}
+  const EMPTYROW = { scale:'', cols:[], with_mean:true, with_std:true, with_centering:true, with_scaling:true, qmin:25, qmax:75, min:0, max:1, output_distribution:'uniform', n_quantiles:1000, standardize:true, method:"yeo-johnson", clip:false, unit_variance: false }
+  const EMPTYDIC = {rows:[EMPTYROW], type:'scale', datatypes:datatypes}
 
   const [error, setError] = useState("");
   const [dic, setDic] = useState(EMPTYDIC);
 
-  
 
 
     const addRow = () => {
       let newDic = {...dic}
       let newRows = newDic.rows
-      newRows.push({ scale:'', cols:[], with_mean:true, with_std:true, with_centering:true, with_scaling:true, qmin:25, qmax:75, min:0, max:1, output_distribution:'uniform', n_quantiles:1000, standardize:true, method:"yeo-johnson", clip:false, unit_variance: false })
+      newRows.push(EMPTYROW)
       newDic['rows'] = newRows
       setDic(newDic)
       console.log(newRows)
@@ -43,7 +42,7 @@ function ScaleCard(props) {
     const addRowEdit = () => {
       let newDic = {...oldDic}
       let newRows = [...newDic.rows]
-      newRows.push({ scale: '', cols:[], with_mean:true, with_std:true, with_centering:true, with_scaling:true, qmin:25, qmax:75, min:0, max:1, output_distribution:'uniform', n_quantiles:1000, standardize:true, method:"yeo-johnson", clip:false, unit_variance: false })
+      newRows.push(EMPTYROW)
       newDic['rows'] = newRows
       dispatch(setEditData(newDic))
       console.log('meow')

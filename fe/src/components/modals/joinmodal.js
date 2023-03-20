@@ -1,5 +1,5 @@
-import { Modal, Tabs, Input, Alert, Switch, message, Steps, Button, Select } from 'antd';
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import { Modal, Tabs, Input, Alert, Switch, message, Steps, Button, Select, Tooltip } from 'antd';
+import { CheckOutlined, CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux'
 
 import { React, useState } from 'react';
@@ -88,7 +88,7 @@ function JoinModal(props) {
           <Button onClick={() => setCurrent(0)} disabled={current === 0}>Previous</Button>,
           <Button onClick={() => setCurrent(1)} disabled={current === 1}>Next</Button>,
           <Button onClick={handleCancel}>Cancel</Button>,
-          <Button onClick={handleOk} type='primary'>Ok</Button>,
+          <Button onClick={handleOk} disabled={current===0} type='primary'>Ok</Button>,
         ]} >
           {/* <Upload {...prop}>
             <Button>Click to Upload</Button>
@@ -103,35 +103,35 @@ function JoinModal(props) {
               children: <div><input key={theInputKey || '' } type="file" accept=".csv"  onChange={props.handleFileUpload} /><br/><br/>
               <label>Delimiter: </label>
               <Input value={props.dic.delimiter} onChange={props.onChange('delimiter')}/>
-              <label>Path: </label>
+              <label>Path to file: </label> <Tooltip title='For use in Airflow'> <QuestionCircleOutlined/></Tooltip>
               <Input value={props.dic.path} onChange={props.onChange('path')} /></div>,
             },
             {
               label: 'XML',
               key: 'xml',
               children: <div><input key={theInputKey || '' } type="file" accept=".xml"  onChange={props.handleFileUpload} /> <br/><br/>
-              <label>Path: </label>
+              <label>Path to file: </label> <Tooltip title='For use in Airflow'> <QuestionCircleOutlined/></Tooltip>
               <Input value={props.dic.path} onChange={props.onChange('path')} /></div>,
             },
             {
               label: 'JSON',
               key: 'json',
               children: <div><input key={theInputKey || '' } type="file" accept=".json"  onChange={props.handleFileUpload} /><br/><br/>
-              <label>Path: </label>
+              <label>Path to file: </label> <Tooltip title='For use in Airflow'> <QuestionCircleOutlined/></Tooltip>
               <Input value={props.dic.path} onChange={props.onChange('path')} /></div>,
             },
             {
               label: 'Fix-width',
               key: 'fix-width',
               children: <div><input key={theInputKey || '' } type="file" accept="*"  onChange={props.handleFileUpload} /><br/><br/>
-              <label>Path: </label>
+              <label>Path to file: </label> <Tooltip title='For use in Airflow'> <QuestionCircleOutlined/></Tooltip>
               <Input value={props.dic.path} onChange={props.onChange('path')} /></div>,
             },
             {
               label: 'Custom',
               key: 'custom',
               children: <div><input key={theInputKey || '' } type="file" accept="*"  onChange={props.handleFileUpload} /><br/><br/>
-              <label>Path: </label>
+              <label>Path to file: </label> <Tooltip title='For use in Airflow'> <QuestionCircleOutlined/></Tooltip>
               <Input value={props.dic.path} onChange={props.onChange('path')} />
               <p>Uploaded file is accesible as a StringIO object in `data`. Final dataframe needs to be loaded to the variable `df`.</p>
               <AceEditor
@@ -139,7 +139,7 @@ function JoinModal(props) {
                 placeholder=""
                 mode="python"
                 theme="xcode"
-                name="blah2"
+                name="joinCustom"
                 onChange={props.onChange('code')}
                 fontSize={14}
                 showPrintMargin={false}

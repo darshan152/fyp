@@ -23,7 +23,7 @@ function AggregateCard(props) {
   const dispatch = useDispatch()
   const hasWrite = stepsArr.length !== 0 && stepsArr.at(-1).type === 'write'
 
-  const EMPTYDIC = {aggRows:[], groupby:[], type:'aggregation', datatypes:datatypes}
+  const EMPTYDIC = {aggRows:[{ agg: [], col:'' }], groupby:[], type:'aggregation', datatypes:datatypes}
 
   const [error, setError] = useState("");
   const [dic, setDic] = useState(EMPTYDIC);

@@ -23,7 +23,7 @@ function DatatypeCard(props) {
   const dispatch = useDispatch()
   const hasWrite = stepsArr.length !== 0 && stepsArr.at(-1).type === 'write'
 
-  const EMPTYDIC = {rows:[], type:'datatype', datatypes:datatypes}
+  const EMPTYDIC = {rows:[{}], type:'datatype', datatypes:datatypes}
 
   const [error, setError] = useState("");
   const [dic, setDic] = useState(EMPTYDIC);
@@ -34,7 +34,7 @@ function DatatypeCard(props) {
     const addRow = () => {
       let newDic = {...dic}
       let newRows = newDic.rows
-      newRows.push({ n_bins:5, strategy:"quantile", threshold:0})
+      newRows.push({})
       newDic['rows'] = newRows
       setDic(newDic)
       console.log(newRows)
@@ -43,7 +43,7 @@ function DatatypeCard(props) {
     const addRowEdit = () => {
       let newDic = {...oldDic}
       let newRows = [...newDic.rows]
-      newRows.push({ n_bins:5, strategy:"quantile", threshold:0})
+      newRows.push({})
       newDic['rows'] = newRows
       dispatch(setEditData(newDic))
       console.log('meow')

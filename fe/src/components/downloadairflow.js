@@ -687,16 +687,15 @@ ${load_fn}
     }
 
     return(
-        <div>
+        <div style={{'display':'inline-block'}}>
             {/* <Button id='csvDownload' type='primary' onClick={downloadCsv} value='download' shape='round' icon={<DownloadOutlined />}>Download</Button> */}
-            <Button id='csvDownload' type='primary' onClick={openModal} value='Generate' shape='round' >Generate Airflow DAG</Button>
-            <Modal open={isModalOpen} onCancel={closeModal} onOk={downloadCsv}>
-                <p>Add airflow shtwuff</p>
-                <label>Path:</label>
+            <Button id='airflowDownload' type='primary' onClick={openModal} value='Generate' shape='round' >Generate Airflow DAG</Button>
+            <Modal title='Airflow Parameters' open={isModalOpen} onCancel={closeModal} onOk={downloadCsv}>
+                <label>Processing Directory:</label>
                 <Input value={path} onChange={onPathChange}></Input>
-                <label>Schedule Interval: </label><Tooltip title="Use crontab"><a href='https://crontab.guru' target="_blank" rel="noreferrer"><QuestionCircleOutlined /></a></Tooltip>
+                <label>Schedule Interval: </label><Tooltip title="Click to go to crontab"><a href='https://crontab.guru' target="_blank" rel="noreferrer"><QuestionCircleOutlined /></a></Tooltip>
                 <Input value={schInt} onChange={onSchIntChange}></Input>
-                <label>File Cleanup:</label>
+                <label>File Cleanup: </label>
                 <Switch checked={isCleanup} checkedChildren={<CheckOutlined />} unCheckedChildren={<CloseOutlined />} onChange={() => setIsCleanup(!isCleanup)}/><br/>
                 <label>Email: </label>
                 <Input value={email} onChange={(e) => setEmail(e.target.value)}></Input>

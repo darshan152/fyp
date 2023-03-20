@@ -38,7 +38,7 @@
 }
 
 #root > div > section > header {
-    background-color: #F2F2F2;
+    background-color: #d9d9d9;
 }
 
 #root > div > section > section > main > div > div > div > div > div > div > div > table > tbody > tr {
@@ -61,17 +61,31 @@
 
 .steps {
     min-width: 24vw;
-    min-height: 63vh;
+    min-height: 63vh; 
 }
 
 .step {
     min-width: 22vw;
     min-height: 10vh;
+    height: 10vh;
 }
 
 #blah2 {
     width: 450px !important;
+    height: 50vh !important;
 }
+
+#readCustom {
+    width: 450px !important;
+    height: 30vh !important;
+}
+
+#joinCustom {
+    width: 450px !important;
+    height: 25vh !important;
+}
+
+
 
 img {
     width: 2.5vw;
@@ -84,6 +98,7 @@ img {
 .cardTest {
     padding-top: 1.75vh;
     font-size: 0.8vw;
+    line-height: 0.8vw;
 }
 
 .datatable th {
@@ -91,7 +106,17 @@ img {
 }
 
 #csvDownload {
-    margin-top: 10px;
+    margin: 10px;
+    width: 10vw;
+    height: 4vh;
+    font-size: 2vh;
+}
+
+#airflowDownload {
+    margin: 10px;
+    width: 15vw;
+    height: 4.3vh;
+    font-size: 2vh;
 }
 
 #root > div > section > section > aside > div > div > div.ant-card.ant-card-bordered.sidecard > div > div > div > div > div > div > div > table > tbody > tr.ant-table-row.ant-table-row-level-0.read {

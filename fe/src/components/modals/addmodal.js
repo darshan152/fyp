@@ -1,6 +1,6 @@
 import React from 'react';
 import '../components.css';
-import { Modal, Alert, Select, Input } from 'antd';
+import { Modal, Alert, Select, Input, Button } from 'antd';
 import AddDetails from './adddetails';
 
 
@@ -41,8 +41,8 @@ function AddModal(props) {
                 <hr/>
                 </div>
             )) : null}
-            <button onClick={props.addRow}>Add</button>
-            <button onClick={props.delRow}>Delete</button>
+            <Button onClick={props.addRow}>Add</Button>
+            <Button onClick={props.delRow}>Delete</Button>
             </Modal>
         </div>
     );

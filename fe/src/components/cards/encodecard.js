@@ -23,7 +23,7 @@ function EncodeCard(props) {
   const dispatch = useDispatch()
   const hasWrite = stepsArr.length !== 0 && stepsArr.at(-1).type === 'write'
 
-  const EMPTYDIC = {rows:[], type:'encode', datatypes:datatypes}
+  const EMPTYDIC = {rows:[{ n_bins:5, strategy:"quantile", threshold:0}], type:'encode', datatypes:datatypes}
 
   const [error, setError] = useState("");
   const [dic, setDic] = useState(EMPTYDIC);

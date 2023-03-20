@@ -209,6 +209,7 @@ function HistoryCard(props) {
             columns={columns}
             dataSource={data}
             components={components}
+            rowClassName='step'
             onRow={(_, index) => {
               const attr = {
                 index,

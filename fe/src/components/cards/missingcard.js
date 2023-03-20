@@ -23,7 +23,7 @@ function MissingCard(props) {
   const dispatch = useDispatch()
   const hasWrite = stepsArr.length !== 0 && stepsArr.at(-1).type === 'write'
 
-  const EMPTYDIC = {rows:[], type:'missing', datatypes:datatypes}
+  const EMPTYDIC = {rows:[{ n_neighbors:5, weights:"uniform", add_ind:false}], type:'missing', datatypes:datatypes}
 
   const [error, setError] = useState("");
   const [dic, setDic] = useState(EMPTYDIC);

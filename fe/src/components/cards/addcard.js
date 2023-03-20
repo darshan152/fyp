@@ -23,7 +23,7 @@ function AddCard(props) {
   const dispatch = useDispatch()
   const hasWrite = stepsArr.length !== 0 && stepsArr.at(-1).type === 'write'
 
-  const EMPTYDIC = {addRows:[], groupby:[], type:'add', datatypes:datatypes}
+  const EMPTYDIC = {addRows:[{ add:[], col:[] }], groupby:[], type:'add', datatypes:datatypes}
 
   const [error, setError] = useState("");
   const [dic, setDic] = useState(EMPTYDIC);
