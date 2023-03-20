@@ -175,8 +175,11 @@ function DownloadAirflow(props) {
             } else if (row.add === 'mean') {
                 transform_fn = transform_fn + `        df['${row['name']}'] = df[[${"'" + row['cols'].join("','") + "'"}]].mean(axis=1)
 `
-            } else if (row.add === 'ceil' || row.add === 'floor' || row.add === 'round' || row.add === 'cumsum') {
+            } else if (row.add === 'ceil' || row.add === 'floor' || row.add === 'cumsum') {
                 transform_fn = transform_fn + `        df['${row['name']}'] = np.${row.add}(df['${row['col']}'])
+`
+            } else if (row.add === 'round') {
+                transform_fn = transform_fn + `        df['${row['name']}'] = np.${row.add}(df['${row['col']}'],decimals=${row['round_number']})
 `
             } else if (row.add === 'sum') {
                 transform_fn = transform_fn + `        df['${row['name']}'] = 0
@@ -407,15 +410,56 @@ function DownloadAirflow(props) {
     }
 
     const processDelete = (transform_fn,curr) => {
-         transform_fn = transform_fn + `        df = df.drop([${"'" + curr['cols'].join("','") + "'"}]),axis=1)
+         transform_fn = transform_fn + `        df = df.drop([${"'" + curr['cols'].join("','") + "'"}],axis=1)
 `
         return transform_fn
     }
 
     const processFilter = (transform_fn,curr) => {
-        transform_fn = transform_fn + `        df = df.query('${curr['query']}')
+        transform_fn = transform_fn + `        df = df.query("""${curr['query']}""")
 `
        return transform_fn
+   }
+
+   const processDatatype = (transform_fn,curr) => {
+    let rows = curr.rows
+        for (var i = 0; i < rows.length; i++) {
+            let row = rows[i]
+            transform_fn = transform_fn + `        for col in [${"'" + rows[i]['cols'].join("','") + "'"}]:
+            df[col] = df[col].astype('${row['dtype']}')
+`}
+   return transform_fn
+}
+
+   const processEncode = (transform_fn,curr) => {
+        let rows = curr.rows
+        for (var i = 0; i < rows.length; i++) {
+            let row = rows[i]
+            if (row['method'] === 'KBinsDiscretizer'){
+                transform_fn = transform_fn + `        enc = KBinsDiscretizer(encode='ordinal', n_bins=${row['n_bins']}, strategy=${row['strategy']})
+        df['${row['col']}'] = enc.fit_transform(df[['${row['col']}']])
+`} 
+            else if (row['method'] === 'LabelBinarizer') {
+                transform_fn = transform_fn + `        enc = LabelBinarizer()
+        trf = enc.fit_transform(df[['${row['col']}']])
+        for i in range(len(enc.classes_)):
+            df['${row['col']}'+ '_' +str(enc.classes_[i])] = trf[:, i]
+`}
+            else if (row['method'] === 'OrdinalEncoder') {
+                transform_fn = transform_fn + `        enc = OrdinalEncoder()
+        df['${row['col']}'] = enc.fit_transform(df[['${row['col']}']])
+`}
+            else if (row['method'] === 'Binarizer') {
+                transform_fn = transform_fn + `        enc = Binarizer(threshold = ${row['threshold']})
+        df['${row['col']}'] = enc.fit_transform(df[['${row['col']}']])
+`}
+            else if (row['method'] === 'LabelEncoder') {
+                transform_fn = transform_fn + `        enc = LabelEncoder()
+        df['${row['col']}'] = enc.fit_transform(df['${row['col']}'])
+`}
+        }
+
+        return transform_fn
    }
 
 
@@ -553,6 +597,12 @@ ${cleanup}`
             } else if (curr.type === 'filter') {
                 transform_fn = processFilter(transform_fn,curr)
                 console.log(transform_fn)
+            } else if (curr.type === 'encode') {
+                transform_fn = processEncode(transform_fn,curr)
+                console.log(transform_fn)
+            } else if (curr.type === 'datatype') {
+                transform_fn = processDatatype(transform_fn,curr)
+                console.log(transform_fn)
             } else if (curr.type === 'write') {
                 load_fn = processWrite(curr)
             }
@@ -580,7 +630,7 @@ import os
 import glob
 import json
 from airflow.utils.email import send_email
-from sklearn.preprocessing import MinMaxScaler, PowerTransformer, StandardScaler, MaxAbsScaler, RobustScaler, QuantileTransformer
+from sklearn.preprocessing import MinMaxScaler, PowerTransformer, StandardScaler, MaxAbsScaler, RobustScaler, QuantileTransformer, KBinsDiscretizer, LabelBinarizer, OrdinalEncoder, Binarizer, LabelEncoder
 from sklearn.impute import SimpleImputer,KNNImputer
 from sklearn.linear_model import LinearRegression
 

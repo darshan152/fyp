@@ -331,7 +331,7 @@ def add(dic, df):
         elif row['add'] == 'floor':
             df[row['name']] = np.floor(df[row['col']])
         elif row['add'] == 'round':
-            df[row['name']] = np.round(df[row['col']])
+            df[row['name']] = np.round(df[row['col']],decimals=row['round_number'])
         elif row['add'] == 'cumsum':
             df[row['name']] = np.cumsum(df[row['col']])
         elif row['add'] == 'sum':
@@ -621,7 +621,8 @@ def encode(dic, df):
             try:
                 enc = KBinsDiscretizer(encode='ordinal', n_bins=row['n_bins'], strategy=row['strategy'])
                 df[row['col']] = enc.fit_transform(df[[row['col']]])
-            except:
+            except Exception as e:
+                print(e)
                 raise EncodeError(f'Column {row["col"]} was not able to be transformed with KBinsDiscretizer. Please change your input column or method')
         elif row['method'] == 'LabelBinarizer':
             try:
