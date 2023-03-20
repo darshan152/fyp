@@ -39,7 +39,7 @@ function DatatypeModal(props) {
                   onChange={e => props.changeRows(e, index, 'dtype')}
                   value={element.dtype}
                 /> 
-                <label>Column: </label>
+                <label>Columns: </label>
                 <Select
                   
                   style={{
