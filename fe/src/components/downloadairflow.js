@@ -437,25 +437,25 @@ function DownloadAirflow(props) {
             let row = rows[i]
             if (row['method'] === 'KBinsDiscretizer'){
                 transform_fn = transform_fn + `        enc = KBinsDiscretizer(encode='ordinal', n_bins=${row['n_bins']}, strategy=${row['strategy']})
-        df['${row['col']}'] = enc.fit_transform(df[['${row['col']}']])
+        df['${row['new_col']}'] = enc.fit_transform(df[['${row['col']}']])
 `} 
             else if (row['method'] === 'LabelBinarizer') {
                 transform_fn = transform_fn + `        enc = LabelBinarizer()
         trf = enc.fit_transform(df[['${row['col']}']])
         for i in range(len(enc.classes_)):
-            df['${row['col']}'+ '_' +str(enc.classes_[i])] = trf[:, i]
+            df['${row['new_col']}'+ '_' +str(enc.classes_[i])] = trf[:, i]
 `}
             else if (row['method'] === 'OrdinalEncoder') {
                 transform_fn = transform_fn + `        enc = OrdinalEncoder()
-        df['${row['col']}'] = enc.fit_transform(df[['${row['col']}']])
+        df['${row['new_col']}'] = enc.fit_transform(df[['${row['col']}']])
 `}
             else if (row['method'] === 'Binarizer') {
                 transform_fn = transform_fn + `        enc = Binarizer(threshold = ${row['threshold']})
-        df['${row['col']}'] = enc.fit_transform(df[['${row['col']}']])
+        df['${row['new_col']}'] = enc.fit_transform(df[['${row['col']}']])
 `}
             else if (row['method'] === 'LabelEncoder') {
                 transform_fn = transform_fn + `        enc = LabelEncoder()
-        df['${row['col']}'] = enc.fit_transform(df['${row['col']}'])
+        df['${row['new_col']}'] = enc.fit_transform(df['${row['col']}'])
 `}
         }
 

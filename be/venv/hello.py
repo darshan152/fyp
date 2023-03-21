@@ -620,7 +620,7 @@ def encode(dic, df):
                 raise EncodeError('Please check your inputs')
             try:
                 enc = KBinsDiscretizer(encode='ordinal', n_bins=row['n_bins'], strategy=row['strategy'])
-                df[row['col']] = enc.fit_transform(df[[row['col']]])
+                df[row['new_col']] = enc.fit_transform(df[[row['col']]])
             except Exception as e:
                 print(e)
                 raise EncodeError(f'Column {row["col"]} was not able to be transformed with KBinsDiscretizer. Please change your input column or method')
@@ -629,13 +629,13 @@ def encode(dic, df):
                 enc = LabelBinarizer()
                 trf = enc.fit_transform(df[[row['col']]])
                 for i in range(len(enc.classes_)):
-                    df[row['col']+ '_' +str(enc.classes_[i])] = trf[:, i]
+                    df[row['new_col']+ '_' +str(enc.classes_[i])] = trf[:, i]
             except:
                 raise EncodeError(f'Column {row["col"]} was not able to be transformed with LabelBinarizer. Please change your input column or method')
         elif row['method'] == 'OrdinalEncoder':
             try:
                 enc = OrdinalEncoder()
-                df[row['col']] = enc.fit_transform(df[[row['col']]])
+                df[row['new_col']] = enc.fit_transform(df[[row['col']]])
             except:
                 raise EncodeError(f'Column {row["col"]} was not able to be transformed with OrdinalEncoder. Please change your input column or method')
         elif row['method'] == 'Binarizer':
@@ -643,13 +643,14 @@ def encode(dic, df):
                 raise EncodeError('Please check your inputs')
             try:
                 enc = Binarizer(threshold = row['threshold'])
-                df[row['col']] = enc.fit_transform(df[[row['col']]])
-            except:
+                df[row['new_col']] = enc.fit_transform(df[[row['col']]])
+            except Exception as e:
+                print(e)
                 raise EncodeError(f'Column {row["col"]} was not able to be transformed with Binarizer. Please change your input column or method')
         elif row['method'] == 'LabelEncoder':
             try:
                 enc = LabelEncoder()
-                df[row['col']] = enc.fit_transform(df[row['col']])
+                df[row['new_col']] = enc.fit_transform(df[row['col']])
             except:
                 raise EncodeError(f'Column {row["col"]} was not able to be transformed with LabelEncoder. Please change your input column or method')
     return df

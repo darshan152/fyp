@@ -46,6 +46,8 @@ function EncodeModal(props) {
                   value={element.col}
                 /> 
                 <br/>
+                <label>New Column Name:</label>
+                <Input onChange={e => props.changeRows(e.target.value, index, 'new_col')} value={element.new_col}/><br/>
                 {element.method === 'KBinsDiscretizer' ? 
                 <div>
                   <label>Number of Bins:</label>
@@ -65,7 +67,7 @@ function EncodeModal(props) {
                 {element.method === 'Binarizer' ? 
                 <div>
                   <label>Threshold:</label>
-                  <Input type='number' onChange={e => props.changeRows(e.target.value, index, 'threshold')}
+                  <Input type='number' onChange={e => props.changeRows(parseFloat(e.target.value), index, 'threshold')}
                     value={element.threshold}/><br/>
                 </div>
                 : null}
