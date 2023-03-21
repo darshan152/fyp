@@ -565,6 +565,40 @@ def delete(dic, df):
         raise DeleteError("Please check your inputs")
     return df
 
+@app.route('/rename', methods=['GET', 'POST'])
+def rename_transformation():
+    # print('im here')
+    if request.method == 'POST':
+        f = request.get_json()
+        print(f['datatypes'])
+        df = read_internal(f['data'],f['datatypes'])
+
+        # print('hey')
+        ans = rename(f['dic'],df)
+        # print(ans)
+        dtype = extract_dtypes(ans)
+        # print(dtype)
+    return { 
+        'data':ans.to_csv(index=False),
+        'datatypes':(dtype),
+    }
+
+def rename(dic, df):
+    for row in dic["rows"]:
+        try: 
+            row['col']
+            row['new_name']
+        except:
+            raise RenameError("Please check your inputs")
+        try:
+            df = df.rename(columns={row['col']:row['new_name']})
+        except Exception as e:
+            print(e)
+            raise RenameError('Unable to change name of column')
+        
+    return df
+    
+
 @app.route('/filter', methods=['GET', 'POST'])
 def filter_transformation():
     # print('im here')
@@ -717,6 +751,8 @@ def retransformation():
                 df = encode(step,df)
             if step['type'] == "datatype":
                 df = datatype(step,df)
+            if step['type'] == "rename":
+                df = rename(step,df)
     print(df)
     dtype = extract_dtypes(df)
     return { 
@@ -833,6 +869,17 @@ class DatatypeError(werkzeug.exceptions.HTTPException):
 
 @app.errorhandler(DatatypeError)
 def handle_521(e):
+    return e.message, e.code
+
+class RenameError(werkzeug.exceptions.HTTPException):
+    code = 522
+
+    def __init__(self, message):
+        super().__init__()
+        self.message = message
+
+@app.errorhandler(RenameError)
+def handle_522(e):
     return e.message, e.code
 
 

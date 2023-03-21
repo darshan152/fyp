@@ -431,6 +431,15 @@ function DownloadAirflow(props) {
    return transform_fn
 }
 
+    const processRename = (transform_fn,curr) => {
+        let rows = curr.rows
+            for (var i = 0; i < rows.length; i++) {
+                let row = rows[i]
+                transform_fn = transform_fn + `        df.rename(columns={'${row['col']}':'${row['new_name']}'})
+`}
+    return transform_fn
+    }
+
    const processEncode = (transform_fn,curr) => {
         let rows = curr.rows
         for (var i = 0; i < rows.length; i++) {
@@ -602,6 +611,9 @@ ${cleanup}`
                 console.log(transform_fn)
             } else if (curr.type === 'datatype') {
                 transform_fn = processDatatype(transform_fn,curr)
+                console.log(transform_fn)
+            } else if (curr.type === 'rename') {
+                transform_fn = processRename(transform_fn,curr)
                 console.log(transform_fn)
             } else if (curr.type === 'write') {
                 load_fn = processWrite(curr)
