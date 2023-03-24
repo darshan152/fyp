@@ -169,7 +169,7 @@ function RenameCard(props) {
         <Card className='TransformCard'>
             <img
                 width={50}
-                src="/change.png"
+                src="/rename.png"
                 alt=''
             />
             <br/>

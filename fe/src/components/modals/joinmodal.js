@@ -85,15 +85,17 @@ function JoinModal(props) {
     return (
         <Modal title="Join Data" open={props.isModalOpen} onOk={handleOk} onCancel={handleCancel} 
         footer={[
-          <Button onClick={() => setCurrent(0)} disabled={current === 0}>Previous</Button>,
-          <Button onClick={() => setCurrent(1)} disabled={current === 1}>Next</Button>,
+          // <Button onClick={() => setCurrent(0)} disabled={current === 0}>Previous</Button>,
+          // <Button onClick={() => setCurrent(1)} disabled={current === 1}>Next</Button>,
           <Button onClick={handleCancel}>Cancel</Button>,
           <Button onClick={handleOk} disabled={current===0} type='primary'>Ok</Button>,
         ]} >
+          
           {/* <Upload {...prop}>
             <Button>Click to Upload</Button>
           </Upload> */}
           {props.error==='' ? null : <Alert message={props.error} type="error" />}
+          <Steps current={current} items={items} style={{'width':'90%'}} /> <br/>
           {current === 0 ? 
           <Tabs activeKey={props.defaultTab} onChange={onTabChange}
           items= {[
@@ -203,7 +205,9 @@ function JoinModal(props) {
           </div>
   }
           <br/>
-          <Steps current={current} items={items} style={{'width':'90%'}} />
+          
+          <Button onClick={() => setCurrent(0)} disabled={current === 0}>Previous</Button>
+          <Button onClick={() => setCurrent(1)} disabled={current === 1}>Next</Button>
 
 
         </Modal>

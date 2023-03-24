@@ -42,7 +42,7 @@ function AddModal(props) {
                 </div>
             )) : null}
             <Button onClick={props.addRow}>Add</Button>
-            <Button onClick={props.delRow}>Delete</Button>
+            <Button className='DeleteBtn' onClick={props.delRow}>Delete</Button>
             </Modal>
         </div>
     );

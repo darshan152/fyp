@@ -3,7 +3,13 @@
     height: 12.5vh;
     float: left;
     text-align: center;
+    background-color: #d9d9d9 !important;
 
+}
+
+.DeleteBtn:hover {
+    color:red !important;
+    border-color: red !important;
 }
 
 .ant-card.ant-card-bordered {

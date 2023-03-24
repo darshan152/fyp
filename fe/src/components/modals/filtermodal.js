@@ -17,7 +17,10 @@ function FilterModal(props) {
         <div>
           <Modal title="Filter Transformation" open={props.isModalOpen} onOk={props.handleOk} onCancel={props.handleCancel}>
           {props.error==='' ? null : <Alert message={props.error} type="error" />}
-          <label>Query:  </label><Tooltip title="You can refer to column names that are not valid Python variable names by surrounding them in backticks. Thus, column names containing spaces or punctuations (besides underscores) or starting with digits must be surrounded by backticks. E.g. `A Num` <= 22"><QuestionCircleOutlined /></Tooltip> <br/>
+          <label>Query:  </label>
+          <Tooltip title="SQL-like queries to filter the rows of the dataset. You can refer to column names by surrounding them in backticks. E.g. `A Num` <= 22 and `country`=='Singapore'">
+            <QuestionCircleOutlined />
+          </Tooltip> <br/>
           <TextArea rows={4} onChange={e => props.handleChange(e.target.value, 'query')} value={props.dic.query} /> 
           </Modal>
         </div>
