@@ -680,11 +680,12 @@ with DAG(
 ) as dag:
     def extract(**kwargs):
 ${extract_fn}
-        df.to_csv('${path.at(-1) !== '/' ? path + '/' : path}raw_data.csv')
+        os.makedirs('${path}')
+        df.to_csv('${path.at(-1) !== '/' ? path + '/' : path}raw_data.csv', index=False)
     
     def transform():
         df = pd.read_csv('${path.at(-1) !== '/' ? path + '/' : path}raw_data.csv')
-${transform_fn}        df.to_csv('${path.at(-1) !== '/' ? path + '/' : path}transformed_data.csv')
+${transform_fn}        df.to_csv('${path.at(-1) !== '/' ? path + '/' : path}transformed_data.csv', index=False)
         df.dtypes.to_csv('${path.at(-1) !== '/' ? path + '/' : path}dtypes.csv')
         
     
