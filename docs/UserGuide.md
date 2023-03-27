@@ -3,6 +3,8 @@ layout: page
 title: User Guide
 ---
 
+# Airflow ETL GUI
+
 The Airflow ETL GUI is a web-app that helps data analysts and other end users of data to easily develop ETL pipelines in airflow using a Graphical User Interface (GUI). It assists to reduce the workload of a data engineer by creating pre-made ETL pipeline for them to implement.
 
 
@@ -12,12 +14,17 @@ The Airflow ETL GUI is a web-app that helps data analysts and other end users of
     * [Online](#online)
 2. [Features](#features)
    * [Read Data](#read)
-   * [Python Transformation](#python)
-   * [Write Transformation](#python)    
+   * [Python Transformation](#python)  
     * [Aggregate Transformation](#agg)
    * [Add Transformation](#add)  
     * [Join Transformation](#join)
    * [Scale Transformation](#scale)  
+   * [Missing Values Transformation](#missing)
+   * [Delete Transformation](#delete)
+   * [Filter Transformation](#filter)
+   * [Encode Transformation](#encode)
+   * [Datatype Transformation](#datatype)
+   * [Rename Transformation](#rename)
     * [Write Transformation](#write)   
 3. [FAQ](#faq)
 4. [Command Summary](#command-summary)
@@ -132,6 +139,9 @@ Types of Read:
     * Password: Password of the user used to login
     * Database Name: Name of the database to be connected to
     * SQL Query: SQL query to be executed in order to obtain the data
+      * Use `{kwargs['macro_name']}` in order to access airflow macros in SQL query
+
+
 
 
 ### Python Transformation <a name="python"></a>
@@ -175,7 +185,7 @@ Parameters:
 * New Column Name: Name of new column
 * Function: Function to apply in order to generate new column
 * Add: Add a column
-* Delete: Remove last column
+* Delete: Remove last row from transformation
 
 Add Functions:
 * Concat: Converts columns to string and concatenates the strings
@@ -255,7 +265,7 @@ Parameters:
 * Scaling: Scaling to apply
 * Columns: Columns to apply scaling to
 * Add: Add a column
-* Delete: Remove last column
+* Delete: Remove last row from transformation
 
 Scaling Methods:
 * Standard Scaler: Standardize features by removing the mean and scaling to unit variance
@@ -288,7 +298,7 @@ Parameters:
 * Method: Method of dealing with missing values to apply
 * Column: Column to apply missing values to
 * Add: Add a column
-* Delete: Remove last column
+* Delete: Remove last row from transformation
 
 Methods to deal with missing values:
 * Delete Rows: Remove rows with missing values
@@ -334,7 +344,7 @@ Parameters:
 * Method: Method of encoding to apply
 * Column: Column to apply encoding to
 * Add: Add a column
-* Delete: Remove last column
+* Delete: Remove last row from transformation
 
 Method:
 * KBinsDiscretizer:
@@ -357,7 +367,17 @@ Parameters:
 * Datatype: Datatype to convert to
 * Columns: Columns to apply datatype to
 * Add: Add a column
-* Delete: Remove last column
+* Delete: Remove last row from transformation
+
+### Rename Transformation <a name="rename"></a>
+
+Transforms data by changing the name of columns
+
+Parameters:
+* Column: Column to give new name
+* New Name: New name of column
+* Add: Add a row to perform a second transformation of the same type
+* Delete: Remove last row from transformation
 
 ### Write Transformation <a name="write"></a>
 
@@ -385,3 +405,20 @@ Types of Write:
 
 --------------------------------------------------------------------------------------------------------------------
 
+## Command Summary <a name="command-summary"></a>
+
+| Transformation | Use Case                                     |
+|----------------|----------------------------------------------|
+| Read           | Read in data                                 |
+| Python         | Use Python code to transform data            |
+| Aggregate      | Aggregate the data and apply functions       |
+| Add            | Apply functions to existing columns          |
+| Join           | Combine the data with another dataset        |
+| Scale          | Re-scale data to a specific scale            |
+| Missing Values | Deal with missing values in the dataset      |
+| Delete         | Remove columns from the data                 |
+| Filter         | Remove specific rows from the data           |
+| Encode         | Encode the data to numeric values            |
+| Datatype       | Change the datatype that represents the data |
+| Rename         | Change the name of the columns               |
+| Write          | Write the data to a destination              |
