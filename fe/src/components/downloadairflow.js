@@ -12,6 +12,7 @@ function DownloadAirflow(props) {
     const [isCleanup, setIsCleanup] = useState(false);
     const [schInt, setSchInt] = useState('');
     const [email, setEmail] = useState('');
+    const [dagId, setDagId] = useState('');
     let cleanup = '';
 
 
@@ -672,7 +673,7 @@ default_args = {
 
 
 with DAG(
-    dag_id='test_from_react',
+    dag_id='${dagId}',
     default_args=default_args,
     schedule_interval='${schInt}',
     start_date=datetime(year=${date.getFullYear()}, month=${date.getMonth()+1}, day=${date.getDate()}),
@@ -754,6 +755,8 @@ ${load_fn}
             {/* <Button id='csvDownload' type='primary' onClick={downloadCsv} value='download' shape='round' icon={<DownloadOutlined />}>Download</Button> */}
             <Button id='airflowDownload' type='primary' onClick={openModal} value='Generate' shape='round' >Generate Airflow DAG</Button>
             <Modal title='Airflow Parameters' open={isModalOpen} onCancel={closeModal} onOk={downloadCsv}>
+                <label>DAG ID: </label>
+                <Input value={dagId} onChange={(e) => setDagId(e.target.value)}></Input>
                 <label>Processing Directory:</label>
                 <Input value={path} onChange={onPathChange}></Input>
                 <label>Schedule Interval: </label><Tooltip title="Click to go to crontab"><a href='https://crontab.guru' target="_blank" rel="noreferrer"><QuestionCircleOutlined /></a></Tooltip>

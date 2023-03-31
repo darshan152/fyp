@@ -13,7 +13,7 @@ The Airflow ETL GUI is a web-app that helps data analysts and other end users of
     * [Localhost](#localhost)
     * [Online](#online)
 2. [Features](#features)
-   * [Read Data](#read)
+   * [Read Transformation](#read)
    * [Python Transformation](#python)  
     * [Aggregate Transformation](#agg)
    * [Add Transformation](#add)  
@@ -26,6 +26,7 @@ The Airflow ETL GUI is a web-app that helps data analysts and other end users of
    * [Datatype Transformation](#datatype)
    * [Rename Transformation](#rename)
     * [Write Transformation](#write)   
+    * [Generate DAG](#dag)
 3. [FAQ](#faq)
 4. [Command Summary](#command-summary)
 
@@ -92,7 +93,7 @@ Shows a message explaining how to access the help page.
 
 Format: `help` -->
 
-### Read Data <a name="read"></a>
+### Read Transformation <a name="read"></a>
 
 This is the first step in every pipeline. Data needs to be read in to allow transformations and writes. 
 
@@ -394,6 +395,17 @@ Types of Write:
     * Airflow Connection Id: Connection id of database in airflow
         * For more information, see [this](https://airflow.apache.org/docs/apache-airflow/2.5.1/howto/connection.html#storing-connections-in-the-database)
     * Table name: Name of table to write to
+
+### Generate DAG <a name="dag"></a>
+
+This helps to generate the Airflow DAG.
+
+Inputs:
+1. DAG ID: Unique ID to identify this DAG
+2. Processing Directory: The directory in which intermediate data can be stored
+3. Schedule Interval: How often the DAG should be run
+4. File Cleanup: Turning this on would clean up the intermediate files created
+5. Email: E-mail to send notification on failure of DAG
 
 
 --------------------------------------------------------------------------------------------------------------------
