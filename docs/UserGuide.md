@@ -185,7 +185,7 @@ Transforms data by adding a new column using pre-defined functions
 Parameters:
 * New Column Name: Name of new column
 * Function: Function to apply in order to generate new column
-* Add: Add a column
+* Add: Add a row to transformation
 * Delete: Remove last row from transformation
 
 Add Functions:
@@ -265,7 +265,7 @@ Transforms data by scaling the data using predefined methods
 Parameters:
 * Scaling: Scaling to apply
 * Columns: Columns to apply scaling to
-* Add: Add a column
+* Add: Add a row to transformation
 * Delete: Remove last row from transformation
 
 Scaling Methods:
@@ -298,7 +298,7 @@ Transforms data by helping to deal with missing values in the dataset
 Parameters:
 * Method: Method of dealing with missing values to apply
 * Column: Column to apply missing values to
-* Add: Add a column
+* Add: Add a row to transformation
 * Delete: Remove last row from transformation
 
 Methods to deal with missing values:
@@ -344,7 +344,7 @@ Transforms data by helping to deal with missing values in the dataset
 Parameters:
 * Method: Method of encoding to apply
 * Column: Column to apply encoding to
-* Add: Add a column
+* Add: Add a row to transformation
 * Delete: Remove last row from transformation
 
 Method:
@@ -367,7 +367,7 @@ Transforms data by changing datatype of columns
 Parameters:
 * Datatype: Datatype to convert to
 * Columns: Columns to apply datatype to
-* Add: Add a column
+* Add: Add a row to transformation
 * Delete: Remove last row from transformation
 
 ### Rename Transformation <a name="rename"></a>
@@ -412,7 +412,7 @@ Inputs:
 
 ## FAQ <a name="faq"></a>
 
-**Q**: 
+**Q**:    
 **A**:
 
 --------------------------------------------------------------------------------------------------------------------
